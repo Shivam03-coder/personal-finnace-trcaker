@@ -1,0 +1,126 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "mongodb"
+    url      = env("DATABASE_URL")
+}
+
+model User {
+    id         String    @id @default(auto()) @map("_id") @db.ObjectId
+    name       String
+    email      String    @unique
+    profileUrl String
+    createdAt  DateTime  @default(now())
+    updatedAt  DateTime  @updatedAt
+    Account    Account[]
+    Budget     Budget[]
+
+    @@index([name])
+    @@map("users")
+}
+
+model Account {
+    id               String        @id @default(auto()) @map("_id") @db.ObjectId
+    name             String
+    type             AccountType
+    balance          Float         @default(0.00)
+    isCurrentAccount Boolean       @default(false)
+    currency         String        @default("INR")
+    status           AccountStatus @default(ACTIVE)
+    userId           String        @db.ObjectId
+    user             User          @relation(fields: [userId], references: [id])
+    createdAt        DateTime      @default(now())
+    updatedAt        DateTime      @updatedAt
+    Transaction      Transaction[]
+    Budget           Budget[]
+
+    @@index([name])
+    @@map("accounts")
+}
+
+model Transaction {
+    id          String            @id @default(auto()) @map("_id") @db.ObjectId
+    amount      Float             @default(0.00)
+    currency    String            @default("INR")
+    type        TransactionType
+    description String?
+    date        DateTime          @default(now())
+    status      TransactionStatus @default(PENDING)
+    referenceId String?           @unique
+    accountId   String            @db.ObjectId
+    account     Account           @relation(fields: [accountId], references: [id])
+    createdAt   DateTime          @default(now())
+    updatedAt   DateTime          @updatedAt
+
+    @@map("transactions")
+}
+
+model Budget {
+    id        String         @id @default(auto()) @map("_id") @db.ObjectId
+    name      String
+    amount    Float          @default(0.00)
+    currency  String         @default("USD")
+    category  BudgetCategory
+    period    BudgetPeriod   @default(MONTHLY)
+    startDate DateTime
+    endDate   DateTime
+    notes     String?
+    userId    String         @unique @db.ObjectId
+    user      User           @relation(fields: [userId], references: [id])
+    accountId String         @db.ObjectId
+    account   Account        @relation(fields: [accountId], references: [id])
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@map("budgets")
+}
+
+enum BudgetCategory {
+    GROCERIES
+    RENT
+    UTILITIES
+    ENTERTAINMENT
+    SAVINGS
+    TRANSPORT
+    OTHER
+}
+
+enum BudgetPeriod {
+    DAILY
+    WEEKLY
+    MONTHLY
+    YEARLY
+    CUSTOM
+}
+
+enum TransactionType {
+    DEPOSIT
+    WITHDRAWAL
+    TRANSFER
+    PAYMENT
+    REFUND
+}
+
+enum TransactionStatus {
+    PENDING
+    COMPLETED
+    FAILED
+    CANCELLED
+}
+
+enum AccountStatus {
+    ACTIVE
+    INACTIVE
+    CLOSED
+    SUSPENDED
+}
+
+enum AccountType {
+    SAVINGS
+    CURRENT
+    BUSINESS
+    JOINT
+}
