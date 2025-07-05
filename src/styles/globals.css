@@ -14,10 +14,7 @@
 
 @theme {
   --font-inter: var(--font-inter);
-  --font-poppins: var(--font-poppins);
   --font-lexend: var(--font-lexend);
-  --font-manrope: var(--font-manrope);
-  --font-space: var(--font-space-grotesk);
 }
 
 @theme inline {
