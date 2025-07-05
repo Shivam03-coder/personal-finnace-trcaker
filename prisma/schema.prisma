@@ -29,30 +29,36 @@ model Account {
     isCurrentAccount Boolean       @default(false)
     currency         String        @default("INR")
     status           AccountStatus @default(ACTIVE)
-    userId           String        @db.ObjectId
-    user             User          @relation(fields: [userId], references: [id])
     createdAt        DateTime      @default(now())
     updatedAt        DateTime      @updatedAt
     Transaction      Transaction[]
     Budget           Budget[]
+
+    userId String @db.ObjectId
+    user   User   @relation(fields: [userId], references: [id])
 
     @@index([name])
     @@map("accounts")
 }
 
 model Transaction {
-    id          String            @id @default(auto()) @map("_id") @db.ObjectId
-    amount      Float             @default(0.00)
-    currency    String            @default("INR")
-    type        TransactionType
-    description String?
-    date        DateTime          @default(now())
-    status      TransactionStatus @default(PENDING)
-    referenceId String?           @unique
-    accountId   String            @db.ObjectId
-    account     Account           @relation(fields: [accountId], references: [id])
-    createdAt   DateTime          @default(now())
-    updatedAt   DateTime          @updatedAt
+    id                         String             @id @default(auto()) @map("_id") @db.ObjectId
+    amount                     Float              @default(0.00)
+    currency                   String             @default("INR")
+    type                       TransactionType
+    description                String?
+    date                       DateTime           @default(now())
+    status                     TransactionStatus  @default(PENDING)
+    isRecurring                Boolean            @default(false)
+    recurringInterval          RecurringInterval?
+    lastTimeRecurringProcessed DateTime?
+    accountId                  String             @db.ObjectId
+    account                    Account            @relation(fields: [accountId], references: [id])
+    createdAt                  DateTime           @default(now())
+    updatedAt                  DateTime           @updatedAt
+    tags                       String[]           @default([])
+    recurring                  Boolean            @default(false)
+    notes                      String?
 
     @@map("transactions")
 }
@@ -61,7 +67,7 @@ model Budget {
     id        String         @id @default(auto()) @map("_id") @db.ObjectId
     name      String
     amount    Float          @default(0.00)
-    currency  String         @default("USD")
+    currency  String         @default("INR")
     category  BudgetCategory
     period    BudgetPeriod   @default(MONTHLY)
     startDate DateTime
@@ -123,4 +129,13 @@ enum AccountType {
     CURRENT
     BUSINESS
     JOINT
+}
+
+enum RecurringInterval {
+    DAILY
+    WEEKLY
+    BIWEEKLY
+    MONTHLY
+    QUARTERLY
+    YEARLY
 }

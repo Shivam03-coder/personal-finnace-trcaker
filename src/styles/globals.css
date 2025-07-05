@@ -5,7 +5,7 @@
 
 @layer base {
   * {
-    @apply font-lexend border-border outline-ring/50;
+    @apply font-inter border-border outline-ring/50;
   }
   body {
     @apply bg-background text-foreground;
