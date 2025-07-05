@@ -3,10 +3,21 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@layer base {
+  * {
+    @apply font-lexend border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
 @theme {
-  --font-sans:
-    var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif,
-    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-inter: var(--font-inter);
+  --font-poppins: var(--font-poppins);
+  --font-lexend: var(--font-lexend);
+  --font-manrope: var(--font-manrope);
+  --font-space: var(--font-space-grotesk);
 }
 
 @theme inline {
