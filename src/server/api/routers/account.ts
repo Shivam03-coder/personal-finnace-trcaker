@@ -1,5 +1,6 @@
 import { accountSchema } from "@/schema/account.schema";
 import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
+import z from "zod";
 
 export const accountRouter = createTRPCRouter({
   createAccount: publicProcedure
@@ -30,4 +31,38 @@ export const accountRouter = createTRPCRouter({
       },
     });
   }),
+
+  deleteAccount: publicProcedure
+    .input(
+      z.object({
+        accountId: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      return ctx.db.account.delete({
+        where: {
+          id: input.accountId,
+        },
+      });
+    }),
+
+  updateDefaultAccount: publicProcedure
+    .input(
+      z.object({
+        accountId: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      await ctx.db.$transaction(async (tx) => {
+        await tx.account.updateMany({ data: { isDefaultAccount: false } });
+        await tx.account.update({
+          where: {
+            id: input.accountId,
+          },
+          data: {
+            isDefaultAccount: true,
+          },
+        });
+      });
+    }),
 });

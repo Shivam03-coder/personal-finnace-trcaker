@@ -14,17 +14,10 @@ import { Button } from "@/components/ui/button";
 import { IconDotsVertical, IconCircleCheckFilled } from "@tabler/icons-react";
 import { DragHandle } from "@/components/data-table/drag-handle";
 import type { AccountType, AccountStatus } from "@prisma/client";
-
-export interface AccountDetailsTypes {
-  id: string;
-  createdAt: Date;
-  accountName: string;
-  accountType: AccountType;
-  accountBalance: number;
-  isDefaultAccount: boolean;
-  currency: string;
-  status: AccountStatus;
-}
+import AccountAction from "./account-action";
+import type { AccountDetailsTypes } from "@/types/app";
+import { useAppToasts } from "@/hooks/use-app-toast";
+import { api } from "@/trpc/react";
 
 const getAccountTypeColor = (type: AccountType) => {
   switch (type) {
@@ -124,7 +117,7 @@ export const accountColumns: ColumnDef<AccountDetailsTypes>[] = [
     accessorKey: "currency",
     header: "Currency",
     cell: ({ row }) => (
-      <span className="rounded-full bg-blue-100 px-2.5 py-[5px] font-lexend text-xs text-gray-800 dark:bg-gray-700 dark:text-gray-300">
+      <span className="font-lexend rounded-full bg-blue-100 px-2.5 py-[5px] text-xs text-gray-800 dark:bg-gray-700 dark:text-gray-300">
         {row.original.currency}
       </span>
     ),
@@ -155,30 +148,75 @@ export const accountColumns: ColumnDef<AccountDetailsTypes>[] = [
   },
   {
     id: "actions",
-    cell: ({ row }) => (
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="ghost"
-            className="data-[state=open]:bg-muted text-muted-foreground flex size-8"
-            size="icon"
-          >
-            <IconDotsVertical />
-            <span className="sr-only">Open menu</span>
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-32">
-          <DropdownMenuItem>Edit</DropdownMenuItem>
-          <DropdownMenuItem>Make default</DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem
-            variant="destructive"
-            disabled={row.original.isDefaultAccount}
-          >
-            Delete
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    ),
+    cell: ({ row }) => {
+      const { ErrorToast, SuccessToast, WarningToast } = useAppToasts();
+      const deleteAccount = api.account.deleteAccount.useMutation();
+      const updateDefaultAccount =
+        api.account.updateDefaultAccount.useMutation();
+      const utils = api.useUtils();
+      return (
+        <AccountAction
+          row={row}
+          onEdit={(row) => {}}
+          onMakeDefault={(row) => {
+            if (!row.original.id) {
+              WarningToast({
+                title: "Error",
+                description: "Cannot set default account without an ID",
+              });
+              return;
+            }
+
+            updateDefaultAccount.mutateAsync(
+              { accountId: row.original.id },
+              {
+                onSuccess: () => {
+                  SuccessToast({
+                    title: "Default account updated",
+                    description: `${row.original.accountName || "This account"} is now your default account`,
+                  });
+                  utils.account.getAccountDetails.invalidate();
+                },
+                onError: (error) => {
+                  ErrorToast({
+                    title: "Update failed",
+                    description:
+                      error.message || "Failed to set default account",
+                  });
+                },
+              },
+            );
+          }}
+          onDelete={(row) => {
+            if (!row.original.id) {
+              WarningToast({
+                title: "Error",
+                description: "Cannot delete account without an ID",
+              });
+              return;
+            }
+
+            deleteAccount.mutateAsync(
+              { accountId: row.original.id },
+              {
+                onSuccess: () => {
+                  SuccessToast({
+                    title: "Account deleted successfully",
+                    description: `${row.original.accountName} has been removed`,
+                  });
+                  utils.account.getAccountDetails.invalidate();
+                },
+                onError: (error) => {
+                  ErrorToast({
+                    title: "Deletion failed",
+                    description: error.message || "Failed to delete account",
+                  });
+                },
+              },
+            );
+          }}
+        />
+      );
+    },
   },
 ];

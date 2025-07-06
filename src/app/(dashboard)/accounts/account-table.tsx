@@ -1,16 +1,15 @@
 "use client";
 import { DataTable } from "@/components/data-table";
-import { accountColumns } from "./account-table-cols";
 import { useCallback, useState } from "react";
 import AddAccountDialog from "./add-account-dialog";
 import { api } from "@/trpc/react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { accountColumns } from "./account-table-cols";
 
 function AccountTable() {
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
   const { data, isLoading } = api.account.getAccountDetails.useQuery();
 
-  console.log("🚀 ~ AccountTable ~ data:", data)
   const handleOpenDialog = useCallback(() => {
     setIsDialogOpen(true);
   }, []);
