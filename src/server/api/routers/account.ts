@@ -6,6 +6,10 @@ export const accountRouter = createTRPCRouter({
   createAccount: publicProcedure
     .input(accountSchema)
     .mutation(async ({ ctx, input }) => {
+      if (input.isDefaultAccount) {
+        await ctx.db.account.updateMany({ data: { isDefaultAccount: false } });
+      }
+
       return ctx.db.account.create({
         data: {
           accountName: input.accountName,
@@ -18,7 +22,7 @@ export const accountRouter = createTRPCRouter({
     }),
 
   getAccountDetails: publicProcedure.query(async ({ ctx }) => {
-    return ctx.db.account.findMany({
+    const acc = await ctx.db.account.findMany({
       select: {
         id: true,
         accountName: true,
@@ -30,6 +34,11 @@ export const accountRouter = createTRPCRouter({
         isDefaultAccount: true,
       },
     });
+
+    return {
+      defaultAccountId: acc.find((a) => a.isDefaultAccount === true)?.id,
+      accounts: acc,
+    };
   }),
 
   deleteAccount: publicProcedure

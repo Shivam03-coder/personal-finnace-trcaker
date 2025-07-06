@@ -1,4 +1,9 @@
-import type { $Enums } from "@prisma/client";
+import type {
+  $Enums,
+  RecurringInterval,
+  TransactionStatus,
+  TransactionType,
+} from "@prisma/client";
 
 export type AccountTypeValues = `${AccountType}`;
 
@@ -32,4 +37,17 @@ export interface AccountDetailsTypes {
   isDefaultAccount: boolean;
   currency: string;
   status: $Enums.AccountStatus;
+}
+
+export interface TransactionDetails {
+  id: string;
+  currency: string;
+  status: TransactionStatus;
+  amount: number;
+  type: TransactionType;
+  description: string | null;
+  date: Date;
+  isRecurring: boolean;
+  recurringInterval: RecurringInterval | null;
+  tags: string[];
 }

@@ -1,22 +1,14 @@
 "use client";
 import { DataTable } from "@/components/data-table";
-import { useCallback, useEffect, useState } from "react";
-import AddAccountDialog from "./add-account-dialog";
+import { useCallback, useState } from "react";
 import { api } from "@/trpc/react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { accountColumns } from "./account-table-cols";
-import { useLocalStorage } from "usehooks-ts";
+import { transactionColumns } from "./transactions-table-cols";
+import AddTransactionDialog from "./add-transaction-dialog";
 
-function AccountTable() {
+function TransactionTable() {
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
-  const { data, isLoading } = api.account.getAccountDetails.useQuery();
-  const [_, setAccountId] = useLocalStorage("default_accountId", "");
-
-  useEffect(() => {
-    if (data && data.defaultAccountId) {
-      setAccountId(data.defaultAccountId);
-    }
-  }, [data]);
+  const { data, isLoading } = api.transaction.getTransactions.useQuery();
 
   const handleOpenDialog = useCallback(() => {
     setIsDialogOpen(true);
@@ -38,17 +30,17 @@ function AccountTable() {
   return (
     <>
       <DataTable
-        data={data?.accounts ?? []}
-        columns={accountColumns}
+        data={data ?? []}
+        columns={transactionColumns}
         enableDragging={true}
         enableRowSelection={true}
         showAddButton={true}
         onAddClick={handleOpenDialog}
         enableSearch={true}
       />
-      <AddAccountDialog open={isDialogOpen} setOpen={setIsDialogOpen} />
+      <AddTransactionDialog open={isDialogOpen} setOpen={setIsDialogOpen} />
     </>
   );
 }
 
-export default AccountTable;
+export default TransactionTable;

@@ -8,14 +8,15 @@ datasource db {
 }
 
 model User {
-    id         String    @id @default(auto()) @map("_id") @db.ObjectId
-    name       String
-    email      String    @unique
-    profileUrl String
-    createdAt  DateTime  @default(now())
-    updatedAt  DateTime  @updatedAt
-    Account    Account[]
-    Budget     Budget[]
+    id          String        @id @default(auto()) @map("_id") @db.ObjectId
+    name        String
+    email       String        @unique
+    profileUrl  String
+    createdAt   DateTime      @default(now())
+    updatedAt   DateTime      @updatedAt
+    Account     Account[]
+    Budget      Budget[]
+    Transaction Transaction[]
 
     @@index([name])
     @@map("users")
@@ -33,7 +34,7 @@ model Account {
     Budget           Budget[]
 
     userId String @db.ObjectId
-    user   User   @relation(fields: [userId], references: [id])
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
@@ -45,7 +46,7 @@ model Account {
 model Transaction {
     id                         String             @id @default(auto()) @map("_id") @db.ObjectId
     amount                     Float              @default(0.00)
-    currency                   String             @default("INR")
+    currency                   CurrencyType       @default(INR)
     type                       TransactionType
     description                String?
     date                       DateTime           @default(now())
@@ -53,14 +54,18 @@ model Transaction {
     isRecurring                Boolean            @default(false)
     recurringInterval          RecurringInterval?
     lastTimeRecurringProcessed DateTime?
-    accountId                  String             @db.ObjectId
-    account                    Account            @relation(fields: [accountId], references: [id])
-    createdAt                  DateTime           @default(now())
-    updatedAt                  DateTime           @updatedAt
     tags                       String[]           @default([])
-    recurring                  Boolean            @default(false)
-    notes                      String?
 
+    userId String @db.ObjectId
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    accountId String  @db.ObjectId
+    account   Account @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@index([accountId])
     @@map("transactions")
 }
 
@@ -143,4 +148,12 @@ enum RecurringInterval {
     MONTHLY
     QUARTERLY
     YEARLY
+}
+
+enum CurrencyType {
+    EUR
+    INR
+    USD
+    JPY
+    GBP
 }
