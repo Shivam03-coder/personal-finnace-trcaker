@@ -1,3 +1,5 @@
+"use client";
+
 import type { ColumnDef } from "@tanstack/react-table";
 import { z } from "zod";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -22,7 +24,7 @@ import { IconDotsVertical } from "@tabler/icons-react";
 import { Badge } from "@/components/ui/badge";
 import { IconCircleCheckFilled, IconLoader } from "@tabler/icons-react";
 import { toast } from "sonner";
-import { DragHandle } from "./drag-handle";
+import { DragHandle } from "@/components/data-table/drag-handle";
 import ExpenseCellViewer from "./expense-cell-viewer";
 
 export const expenseSchema = z.object({
@@ -37,7 +39,7 @@ export const expenseSchema = z.object({
   notes: z.string().optional(),
 });
 
-export const columns: ColumnDef<z.infer<typeof expenseSchema>>[] = [
+export const expenseColumns: ColumnDef<z.infer<typeof expenseSchema>>[] = [
   {
     id: "drag",
     header: () => null,

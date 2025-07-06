@@ -23,21 +23,22 @@ model User {
 
 model Account {
     id               String        @id @default(auto()) @map("_id") @db.ObjectId
-    name             String
-    type             AccountType
-    balance          Float         @default(0.00)
-    isCurrentAccount Boolean       @default(false)
+    accountName      String
+    accountType      AccountType
+    accountBalance   Float         @default(0.00)
+    isDefaultAccount Boolean       @default(false)
     currency         String        @default("INR")
     status           AccountStatus @default(ACTIVE)
-    createdAt        DateTime      @default(now())
-    updatedAt        DateTime      @updatedAt
     Transaction      Transaction[]
     Budget           Budget[]
 
     userId String @db.ObjectId
     user   User   @relation(fields: [userId], references: [id])
 
-    @@index([name])
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@index([accountName, accountType])
     @@map("accounts")
 }
 
@@ -74,7 +75,7 @@ model Budget {
     endDate   DateTime
     notes     String?
     userId    String         @unique @db.ObjectId
-    user      User           @relation(fields: [userId], references: [id])
+    user      User?          @relation(fields: [userId], references: [id])
     accountId String         @db.ObjectId
     account   Account        @relation(fields: [accountId], references: [id])
 
@@ -126,9 +127,11 @@ enum AccountStatus {
 
 enum AccountType {
     SAVINGS
-    CURRENT
+    CHECKING
     BUSINESS
-    JOINT
+    INVESTMENT
+    RETIREMENT
+    CREDIT
 }
 
 enum RecurringInterval {

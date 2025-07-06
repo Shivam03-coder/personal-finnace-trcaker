@@ -4,10 +4,14 @@ import { flexRender, type Row } from "@tanstack/react-table";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { TableCell, TableRow } from "@/components/ui/table";
-import { z } from "zod";
-import { expenseSchema } from "./schema";
 
-export function DraggableRow({ row }: { row: Row<z.infer<typeof expenseSchema>> }) {
+interface DraggableRowProps<TData> {
+  row: Row<TData>;
+}
+
+export function DraggableRow<TData extends { id: string | number }>({
+  row,
+}: DraggableRowProps<TData>) {
   const { transform, transition, setNodeRef, isDragging } = useSortable({
     id: row.original.id,
   });

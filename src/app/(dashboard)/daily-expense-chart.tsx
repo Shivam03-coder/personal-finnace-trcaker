@@ -244,7 +244,7 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export default function ExpenseTrackerChart() {
+export default function DailyExpenseChart() {
   const isMobile = useIsMobile();
   const [timeRange, setTimeRange] = React.useState("30d");
   const [selectedCategory, setSelectedCategory] = React.useState("all");

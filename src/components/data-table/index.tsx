@@ -35,24 +35,34 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
+  type ColumnDef,
   type ColumnFiltersState,
   type Row,
   type SortingState,
   type VisibilityState,
 } from "@tanstack/react-table";
-import { z } from "zod";
-import { expenseSchema } from "./schema";
 import { useId, useMemo, useState } from "react";
 import { DraggableRow } from "./draggable-row";
-import { columns } from "./ columns";
 import PaginationControls from "./pagination-controll";
 import { TableToolbar } from "./table-tool-bar";
 
-function DataTable({
+interface DataTableProps<TData> {
+  data: TData[];
+  columns: ColumnDef<TData>[];
+  defaultPageSize?: number;
+  enableRowSelection?: boolean;
+  enableDragging?: boolean;
+  onRowReorder?: (reorderedData: TData[]) => void;
+}
+
+export function DataTable<TData extends { id: string | number }>({
   data: initialData,
-}: {
-  data: z.infer<typeof expenseSchema>[];
-}) {
+  columns,
+  defaultPageSize = 10,
+  enableRowSelection = true,
+  enableDragging = false,
+  onRowReorder,
+}: DataTableProps<TData>) {
   const [data, setData] = useState(() => initialData);
   const [rowSelection, setRowSelection] = useState({});
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
@@ -60,7 +70,7 @@ function DataTable({
   const [sorting, setSorting] = useState<SortingState>([]);
   const [pagination, setPagination] = useState({
     pageIndex: 0,
-    pageSize: 10,
+    pageSize: defaultPageSize,
   });
   const sortableId = useId();
   const sensors = useSensors(
@@ -85,7 +95,7 @@ function DataTable({
       pagination,
     },
     getRowId: (row) => row.id.toString(),
-    enableRowSelection: true,
+    enableRowSelection: enableRowSelection,
     onRowSelectionChange: setRowSelection,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -100,12 +110,21 @@ function DataTable({
   });
 
   function handleDragEnd(event: DragEndEvent) {
+    if (!enableDragging) return;
+
     const { active, over } = event;
     if (active && over && active.id !== over.id) {
       setData((data) => {
         const oldIndex = dataIds.indexOf(active.id);
         const newIndex = dataIds.indexOf(over.id);
-        return arrayMove(data, oldIndex, newIndex);
+        const newData = arrayMove(data, oldIndex, newIndex);
+
+        // Call the onRowReorder callback if provided
+        if (onRowReorder) {
+          onRowReorder(newData);
+        }
+
+        return newData;
       });
     }
   }
@@ -122,13 +141,57 @@ function DataTable({
         className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6"
       >
         <div className="overflow-hidden rounded-lg border">
-          <DndContext
-            collisionDetection={closestCenter}
-            modifiers={[restrictToVerticalAxis]}
-            onDragEnd={handleDragEnd}
-            sensors={sensors}
-            id={sortableId}
-          >
+          {enableDragging ? (
+            <DndContext
+              collisionDetection={closestCenter}
+              modifiers={[restrictToVerticalAxis]}
+              onDragEnd={handleDragEnd}
+              sensors={sensors}
+              id={sortableId}
+            >
+              <Table>
+                <TableHeader className="bg-muted sticky top-0 z-10">
+                  {table.getHeaderGroups().map((headerGroup) => (
+                    <TableRow key={headerGroup.id}>
+                      {headerGroup.headers.map((header) => {
+                        return (
+                          <TableHead key={header.id} colSpan={header.colSpan}>
+                            {header.isPlaceholder
+                              ? null
+                              : flexRender(
+                                  header.column.columnDef.header,
+                                  header.getContext(),
+                                )}
+                          </TableHead>
+                        );
+                      })}
+                    </TableRow>
+                  ))}
+                </TableHeader>
+                <TableBody className="**:data-[slot=table-cell]:first:w-8">
+                  {table.getRowModel().rows?.length ? (
+                    <SortableContext
+                      items={dataIds}
+                      strategy={verticalListSortingStrategy}
+                    >
+                      {table.getRowModel().rows.map((row) => (
+                        <DraggableRow key={row.id} row={row} />
+                      ))}
+                    </SortableContext>
+                  ) : (
+                    <TableRow>
+                      <TableCell
+                        colSpan={columns.length}
+                        className="h-24 text-center"
+                      >
+                        No results.
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </DndContext>
+          ) : (
             <Table>
               <TableHeader className="bg-muted sticky top-0 z-10">
                 {table.getHeaderGroups().map((headerGroup) => (
@@ -150,14 +213,18 @@ function DataTable({
               </TableHeader>
               <TableBody className="**:data-[slot=table-cell]:first:w-8">
                 {table.getRowModel().rows?.length ? (
-                  <SortableContext
-                    items={dataIds}
-                    strategy={verticalListSortingStrategy}
-                  >
-                    {table.getRowModel().rows.map((row) => (
-                      <DraggableRow key={row.id} row={row} />
-                    ))}
-                  </SortableContext>
+                  table.getRowModel().rows.map((row) => (
+                    <TableRow key={row.id}>
+                      {row.getVisibleCells().map((cell) => (
+                        <TableCell key={cell.id}>
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext(),
+                          )}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))
                 ) : (
                   <TableRow>
                     <TableCell
@@ -170,7 +237,7 @@ function DataTable({
                 )}
               </TableBody>
             </Table>
-          </DndContext>
+          )}
         </div>
         <PaginationControls table={table} />
       </TabsContent>
@@ -193,5 +260,3 @@ function DataTable({
     </Tabs>
   );
 }
-
-export default DataTable;

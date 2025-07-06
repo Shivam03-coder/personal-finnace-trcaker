@@ -1,25 +1,11 @@
 "use client";
 
-import * as React from "react";
 import {
-  IconCamera,
-  IconChartBar,
   IconDashboard,
-  IconDatabase,
-  IconFileAi,
-  IconFileDescription,
-  IconFileWord,
-  IconFolder,
-  IconHelp,
   IconInnerShadowTop,
-  IconListDetails,
   IconPigMoney,
   IconReceipt,
-  IconReport,
-  IconSearch,
-  IconSettings,
   IconTrendingUp,
-  IconUsers,
   IconWallet,
 } from "@tabler/icons-react";
 
@@ -44,28 +30,28 @@ const data = {
   navMain: [
     {
       title: "Dashboard",
-      url: "#",
+      url: "/",
       icon: IconDashboard,
     },
     {
+      title: "Accounts",
+      url: "/accounts",
+      icon: IconWallet,
+    },
+    {
       title: "Transactions",
-      url: "#",
+      url: "/transactions",
       icon: IconReceipt,
     },
     {
       title: "Budgets",
-      url: "#",
+      url: "/budgets",
       icon: IconPigMoney,
     },
     {
       title: "Investments",
-      url: "#",
+      url: "/investments",
       icon: IconTrendingUp,
-    },
-    {
-      title: "Accounts",
-      url: "#",
-      icon: IconWallet,
     },
   ],
 };

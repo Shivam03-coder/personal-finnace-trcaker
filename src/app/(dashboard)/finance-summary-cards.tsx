@@ -7,7 +7,7 @@ import {
   Receipt,
   Wallet,
 } from "lucide-react";
-import FinanceSummaryCard from "./summary-card";
+import FinanceSummaryCard from "../../components/global/summary-card";
 
 export default function FinanceSummaryCards() {
   const cardsData: FinanceCardData[] = [
