@@ -113,7 +113,7 @@ export default function AddTransactionForm({
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="mx-auto w-full space-y-8 p-4"
+        className="mx-auto w-full space-y-8 px-6 py-8"
       >
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           <FormField

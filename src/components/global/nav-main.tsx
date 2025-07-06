@@ -17,7 +17,8 @@ import {
 } from "@/components/ui/sidebar";
 import { Link } from "next-view-transitions";
 import { ArrowLeftRight } from "lucide-react";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
+import AddTransactionSheet from "@/app/(dashboard)/transactions/add-transaction-dialog";
 
 export function NavMain({
   items,
@@ -28,7 +29,11 @@ export function NavMain({
     icon?: Icon;
   }[];
 }) {
-  const handleQuickCreateTransaction = useCallback(() => {}, []);
+  const [open, setOpen] = useState<boolean>(false);
+  const handleQuickCreateTransaction = useCallback(() => {
+    setOpen(true);
+  }, []);
+
   return (
     <SidebarGroup>
       <SidebarGroupContent className="flex flex-col gap-2">
@@ -42,6 +47,8 @@ export function NavMain({
               <IconMoneybag />
               <span>Create Transaction</span>
             </SidebarMenuButton>
+
+            {open && <AddTransactionSheet open={open} setOpen={setOpen} />}
 
             <Button
               size="icon"
