@@ -20,11 +20,11 @@ export default function RootLayout({
   return (
     <html suppressHydrationWarning lang="en" className={appfonts}>
       <body>
-        <AppRootProvider>
-          <TRPCReactProvider>
+        <TRPCReactProvider>
+          <AppRootProvider>
             <main className="flex min-h-screen flex-col">{children}</main>
-          </TRPCReactProvider>
-        </AppRootProvider>
+          </AppRootProvider>
+        </TRPCReactProvider>
       </body>
     </html>
   );

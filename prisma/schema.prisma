@@ -123,6 +123,7 @@ enum AccountStatus {
     INACTIVE
     CLOSED
     SUSPENDED
+    PENDING
 }
 
 enum AccountType {
@@ -132,6 +133,7 @@ enum AccountType {
     INVESTMENT
     RETIREMENT
     CREDIT
+    LOAN
 }
 
 enum RecurringInterval {

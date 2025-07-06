@@ -14,24 +14,14 @@ interface AddAccountDialogProps {
   setOpen: (open: boolean) => void;
 }
 
-function AddAccountDialog({ open, setOpen }: AddAccountDialogProps) {
+function AddAccountDialog({ open = true, setOpen }: AddAccountDialogProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-[450px]">
+        <DialogHeader className="hidden">
           <DialogTitle>ADD YOUR ACCOUNT</DialogTitle>
         </DialogHeader>
-        <AddAccountForm />
-        <DialogFooter>
-          <DialogClose asChild>
-            <Button size={"sm"} variant="outline">
-              Cancel
-            </Button>
-          </DialogClose>
-          <Button size={"sm"} type="submit">
-            Save changes
-          </Button>
-        </DialogFooter>
+        <AddAccountForm setOpen={setOpen} />
       </DialogContent>
     </Dialog>
   );

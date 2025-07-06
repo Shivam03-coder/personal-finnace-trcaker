@@ -41,18 +41,23 @@ import {
   type SortingState,
   type VisibilityState,
 } from "@tanstack/react-table";
-import { useId, useMemo, useState } from "react";
+import { useEffect, useId, useMemo, useState } from "react";
 import { DraggableRow } from "./draggable-row";
 import PaginationControls from "./pagination-controll";
 import { TableToolbar } from "./table-tool-bar";
 
-interface DataTableProps<TData> {
+interface DataTableProps<TData extends { id: string | number }> {
   data: TData[];
   columns: ColumnDef<TData>[];
   defaultPageSize?: number;
   enableRowSelection?: boolean;
   enableDragging?: boolean;
   onRowReorder?: (reorderedData: TData[]) => void;
+  showAddButton?: boolean;
+  onAddClick?: () => void;
+  enableSearch?: boolean;
+  onSearch?: (value: string) => void;
+  isLoading?: boolean;
 }
 
 export function DataTable<TData extends { id: string | number }>({
@@ -62,12 +67,18 @@ export function DataTable<TData extends { id: string | number }>({
   enableRowSelection = true,
   enableDragging = false,
   onRowReorder,
+  enableSearch,
+  onAddClick,
+  onSearch,
+  showAddButton,
+  isLoading = false,
 }: DataTableProps<TData>) {
-  const [data, setData] = useState(() => initialData);
+  const [data, setData] = useState<TData[]>(initialData);
   const [rowSelection, setRowSelection] = useState({});
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [sorting, setSorting] = useState<SortingState>([]);
+  const [searchQuery, setSearchQuery] = useState<string>("");
   const [pagination, setPagination] = useState({
     pageIndex: 0,
     pageSize: defaultPageSize,
@@ -79,6 +90,12 @@ export function DataTable<TData extends { id: string | number }>({
     useSensor(KeyboardSensor, {}),
   );
 
+  // FIX 2: Update local data when initialData changes
+  useEffect(() => {
+    setData(initialData);
+  }, [initialData]);
+
+  // FIX 3: Generate dataIds from current data, not stale data
   const dataIds = useMemo<UniqueIdentifier[]>(
     () => data?.map(({ id }) => id) || [],
     [data],
@@ -107,17 +124,47 @@ export function DataTable<TData extends { id: string | number }>({
     getSortedRowModel: getSortedRowModel(),
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
+    globalFilterFn: (row, columnId, filterValue) => {
+      return Object.values(row.original).some((value) =>
+        String(value).toLowerCase().includes(String(filterValue).toLowerCase()),
+      );
+    },
   });
 
+  useEffect(() => {
+    if (enableSearch) {
+      setColumnFilters((prev) => [
+        ...prev.filter((filter) => filter.id !== "global"),
+        ...(searchQuery
+          ? [
+              {
+                id: "global",
+                value: searchQuery,
+              },
+            ]
+          : []),
+      ]);
+    }
+  }, [searchQuery, enableSearch]);
+
+  // FIX 4: Fixed drag end function
   function handleDragEnd(event: DragEndEvent) {
     if (!enableDragging) return;
 
     const { active, over } = event;
     if (active && over && active.id !== over.id) {
-      setData((data) => {
-        const oldIndex = dataIds.indexOf(active.id);
-        const newIndex = dataIds.indexOf(over.id);
-        const newData = arrayMove(data, oldIndex, newIndex);
+      setData((currentData) => {
+        // Find indices from current data, not stale dataIds
+        const oldIndex = currentData.findIndex((item) => item.id === active.id);
+        const newIndex = currentData.findIndex((item) => item.id === over.id);
+
+        // Validate indices
+        if (oldIndex === -1 || newIndex === -1) {
+          console.warn("Could not find item indices for drag operation");
+          return currentData;
+        }
+
+        const newData = arrayMove(currentData, oldIndex, newIndex);
 
         // Call the onRowReorder callback if provided
         if (onRowReorder) {
@@ -129,13 +176,32 @@ export function DataTable<TData extends { id: string | number }>({
     }
   }
 
+  // FIX 5: Add loading state handling
+  if (isLoading) {
+    return (
+      <div className="w-full">
+        <div className="flex h-32 items-center justify-center">
+          <div className="text-muted-foreground text-sm">Loading...</div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <Tabs
       defaultValue="outline"
       className="w-full flex-col justify-start gap-6"
     >
-      <TableToolbar table={table} />
-
+      <TableToolbar
+        table={table}
+        showAddButton={showAddButton}
+        onAddClick={onAddClick}
+        searchValue={searchQuery}
+        onSearchChange={(value) => {
+          setSearchQuery(value);
+          onSearch?.(value);
+        }}
+      />
       <TabsContent
         value="outline"
         className="relative flex flex-col gap-4 overflow-auto px-4 lg:px-6"
@@ -169,7 +235,7 @@ export function DataTable<TData extends { id: string | number }>({
                   ))}
                 </TableHeader>
                 <TableBody className="**:data-[slot=table-cell]:first:w-8">
-                  {table.getRowModel().rows?.length ? (
+                  {table?.getRowModel()?.rows?.length ? (
                     <SortableContext
                       items={dataIds}
                       strategy={verticalListSortingStrategy}

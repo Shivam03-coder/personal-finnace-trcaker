@@ -1,16 +1,5 @@
 "use client";
 
-import type { ColumnDef } from "@tanstack/react-table";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,11 +7,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+
+import type { ColumnDef } from "@tanstack/react-table";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
-import { IconDotsVertical } from "@tabler/icons-react";
-import { Badge } from "@/components/ui/badge";
-import { IconCircleCheckFilled } from "@tabler/icons-react";
-import { toast } from "sonner";
+import { IconDotsVertical, IconCircleCheckFilled } from "@tabler/icons-react";
 import { DragHandle } from "@/components/data-table/drag-handle";
 import type { AccountType, AccountStatus } from "@prisma/client";
 
@@ -36,6 +25,38 @@ export interface AccountDetailsTypes {
   currency: string;
   status: AccountStatus;
 }
+
+const getAccountTypeColor = (type: AccountType) => {
+  switch (type) {
+    case "CHECKING":
+      return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200";
+    case "SAVINGS":
+      return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200";
+    case "CREDIT":
+      return "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200";
+    case "INVESTMENT":
+      return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200";
+    case "LOAN":
+      return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200";
+    default:
+      return "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300";
+  }
+};
+
+const getStatusColor = (status: AccountStatus) => {
+  switch (status) {
+    case "ACTIVE":
+      return "bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200";
+    case "INACTIVE":
+      return "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300";
+    case "CLOSED":
+      return "bg-rose-100 text-rose-800 dark:bg-rose-900 dark:text-rose-200";
+    case "PENDING":
+      return "bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200";
+    default:
+      return "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300";
+  }
+};
 
 export const accountColumns: ColumnDef<AccountDetailsTypes>[] = [
   {
@@ -78,18 +99,20 @@ export const accountColumns: ColumnDef<AccountDetailsTypes>[] = [
   },
   {
     accessorKey: "accountType",
-    header: "Type",
+    header: "Account Type",
     cell: ({ row }) => (
-      <Badge variant="outline" className="capitalize">
-        {row.original.accountType.toLowerCase()}
-      </Badge>
+      <span
+        className={`${getAccountTypeColor(row.original.accountType)} rounded-full px-3.5 py-[5px] text-xs font-medium`}
+      >
+        {row.original.accountType}
+      </span>
     ),
   },
   {
     accessorKey: "accountBalance",
-    header: () => <div className="text-right">Balance</div>,
+    header: () => <div className="text-center">Account Balance</div>,
     cell: ({ row }) => (
-      <div className="text-right font-medium">
+      <div className="text-center font-medium">
         {new Intl.NumberFormat(undefined, {
           style: "currency",
           currency: row.original.currency || "USD",
@@ -100,22 +123,26 @@ export const accountColumns: ColumnDef<AccountDetailsTypes>[] = [
   {
     accessorKey: "currency",
     header: "Currency",
-    cell: ({ row }) => <Badge variant="outline">{row.original.currency}</Badge>,
+    cell: ({ row }) => (
+      <span className="rounded-full bg-blue-100 px-2.5 py-[5px] font-lexend text-xs text-gray-800 dark:bg-gray-700 dark:text-gray-300">
+        {row.original.currency}
+      </span>
+    ),
   },
   {
     accessorKey: "status",
-    header: "Status",
+    header: "Account Status",
     cell: ({ row }) => (
-      <Badge
-        variant={row.original.status === "ACTIVE" ? "default" : "secondary"}
+      <span
+        className={`${getStatusColor(row.original.status)} rounded-full px-2.5 py-0.5 text-xs font-medium`}
       >
         {row.original.status}
-      </Badge>
+      </span>
     ),
   },
   {
     accessorKey: "isDefaultAccount",
-    header: "Default",
+    header: () => <div className="text-center">Default</div>,
     cell: ({ row }) => (
       <div className="flex items-center justify-center">
         {row.original.isDefaultAccount ? (

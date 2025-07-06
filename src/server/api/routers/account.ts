@@ -11,7 +11,7 @@ export const accountRouter = createTRPCRouter({
           accountType: input.accountType,
           accountBalance: input.accountBalance,
           isDefaultAccount: input.isDefaultAccount,
-          userId: "",
+          userId: "65c0d2d242fd32ba15fdee12",
         },
       });
     }),
@@ -24,9 +24,9 @@ export const accountRouter = createTRPCRouter({
         accountBalance: true,
         accountType: true,
         currency: true,
-        isDefaultAccount: true,
         status: true,
         createdAt: true,
+        isDefaultAccount: true,
       },
     });
   }),
