@@ -4,7 +4,7 @@ import { useCallback, useState } from "react";
 import { api } from "@/trpc/react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { transactionColumns } from "./transactions-table-cols";
-import AddTransactionDialog from "./add-transaction-dialog";
+import AddTransactionDialog from "./add-transaction-sheet";
 
 function TransactionTable() {
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);

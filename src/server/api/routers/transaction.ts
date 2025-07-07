@@ -3,7 +3,11 @@ import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
 import z from "zod";
 import { subDays, startOfDay } from "date-fns";
 import { getDefaultAccountId, getTransactions } from "@/server/action";
-import { getIncrementAndDecrementOfAmount } from "@/utils/get-amount";
+import {
+  applyTransactionEffect,
+  getIncrementAndDecrementOfAmount,
+  reverseTransactionEffect,
+} from "@/utils/get-amount";
 
 export const transactionRouter = createTRPCRouter({
   createTransactions: publicProcedure
@@ -193,5 +197,61 @@ export const transactionRouter = createTRPCRouter({
         date,
         ...dailySummary[date!],
       }));
+    }),
+
+  editTransaction: publicProcedure
+    .input(
+      transactionSchema.extend({
+        id: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { id, ...updateData } = input;
+      const accountId = await getDefaultAccountId();
+      const [account, existingTransaction] = await Promise.all([
+        ctx.db.account.findUnique({
+          where: {
+            id: accountId,
+            isDefaultAccount: true,
+          },
+        }),
+        ctx.db.transaction.findUnique({
+          where: { id },
+        }),
+      ]);
+
+      if (!account) throw new Error("Account not found");
+      if (!existingTransaction) throw new Error("Transaction not found");
+
+      await ctx.db.$transaction(async (tx) => {
+        await tx.account.update({
+          where: { id: account.id },
+          data: {
+            accountBalance: reverseTransactionEffect(
+              existingTransaction.type,
+              account.accountBalance,
+              existingTransaction.amount,
+            ),
+          },
+        });
+
+        const updatedTransaction = await tx.transaction.update({
+          where: { id },
+          data: updateData,
+        });
+
+        await tx.account.update({
+          where: { id: account.id },
+          data: {
+            accountBalance: applyTransactionEffect(
+              input.type,
+              account.accountBalance,
+              input.amount,
+            ),
+          },
+        });
+
+        return updatedTransaction;
+      });
     }),
 });

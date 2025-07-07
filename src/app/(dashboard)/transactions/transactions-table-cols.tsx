@@ -161,7 +161,9 @@ export const transactionColumns: ColumnDef<TransactionDetails>[] = [
             </span>
           </>
         ) : (
-          <span className="text-black font-lexend uppercase px-2 py-0.5 bg-pink-100 rounded-2xl text-xs">One-time</span>
+          <span className="font-lexend rounded-2xl bg-pink-100 px-2 py-0.5 text-xs text-black uppercase">
+            One-time
+          </span>
         )}
       </div>
     ),
@@ -187,12 +189,12 @@ export const transactionColumns: ColumnDef<TransactionDetails>[] = [
     cell: ({ row }) => {
       const { ErrorToast, SuccessToast } = useAppToasts();
       const deleteTransaction = api.transaction.deleteTransaction.useMutation();
+
       const utils = api.useUtils();
 
       return (
         <TransactionAction
           row={row}
-          onEdit={(row) => {}}
           onDelete={(row) => {
             deleteTransaction.mutateAsync(
               { transactionId: row.original.id },

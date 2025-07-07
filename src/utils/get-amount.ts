@@ -16,3 +16,44 @@ export function getIncrementAndDecrementOfAmount(
   }
   return amount;
 }
+
+
+
+export function reverseTransactionEffect(
+  type: TransactionType,
+  currentBalance: number,
+  amount: number,
+): number {
+  switch (type) {
+    case "DEPOSIT":
+    case "REFUND":
+      return currentBalance - amount;
+    case "WITHDRAWAL":
+    case "PAYMENT":
+      return currentBalance + amount;
+    case "TRANSFER":
+      return currentBalance + amount;
+    default:
+      return currentBalance;
+  }
+}
+
+export function applyTransactionEffect(
+  type: TransactionType,
+  currentBalance: number,
+  amount: number,
+): number {
+  switch (type) {
+    case "DEPOSIT":
+    case "REFUND":
+      return currentBalance + amount;
+    case "WITHDRAWAL":
+    case "PAYMENT":
+      return currentBalance - amount;
+    case "TRANSFER":
+      // Handle transfer based on your business logic
+      return currentBalance - amount; // Simplified example
+    default:
+      return currentBalance;
+  }
+}

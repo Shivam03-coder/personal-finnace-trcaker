@@ -19,8 +19,12 @@ import {
 } from "@/components/ui/alert-dialog";
 import { IconDotsVertical } from "@tabler/icons-react";
 import type { Row } from "@tanstack/react-table";
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import type { TransactionDetails } from "@/types/app";
+import EditTransactionSheet from "./edit-transaction-sheet";
+import type { Z } from "node_modules/@faker-js/faker/dist/airline-CLphikKp";
+import type z from "zod";
+import type { transactionSchema } from "@/schema/transaction.schema";
 
 interface TransactionActionProps {
   row: Row<TransactionDetails>;
@@ -28,26 +32,22 @@ interface TransactionActionProps {
   onDelete?: (row: Row<TransactionDetails>) => void;
 }
 
-const TransactionAction = ({
-  row,
-  onEdit,
-  onDelete,
-}: TransactionActionProps) => {
+const TransactionAction = ({ row, onDelete }: TransactionActionProps) => {
   const [showDeleteAlert, setShowDeleteAlert] = useState(false);
+  const [open, setOpen] = useState<boolean>(false);
 
-  const handleEdit = () => {
-    onEdit?.(row);
-  };
+  const handleEdit = useCallback(() => {
+    setOpen(true);
+  }, []);
 
-  const handleDeleteClick = () => {
+  const handleDeleteClick = useCallback(() => {
     setShowDeleteAlert(true);
-  };
+  }, []);
 
-  const handleDeleteConfirm = () => {
+  const handleDeleteConfirm = useCallback(() => {
     onDelete?.(row);
     setShowDeleteAlert(false);
-  };
-
+  }, [onDelete, row]);
   return (
     <>
       <DropdownMenu>
@@ -93,6 +93,14 @@ const TransactionAction = ({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      {open && (
+        <EditTransactionSheet
+          open={open}
+          setOpen={setOpen}
+          data={row.original as z.infer<typeof transactionSchema>}
+          trasactionId={row.original.id}
+        />
+      )}
     </>
   );
 };

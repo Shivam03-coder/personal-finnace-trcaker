@@ -35,7 +35,6 @@ import { TagsInput } from "@/components/ui/tags-input";
 import { transactionSchema } from "@/schema/transaction.schema";
 import { SheetClose, SheetFooter } from "@/components/ui/sheet";
 import {
-  CurrencyType,
   RecurringInterval,
   TransactionStatus,
   TransactionType,
@@ -43,32 +42,31 @@ import {
 import { api } from "@/trpc/react";
 import { useAppToasts } from "@/hooks/use-app-toast";
 import { useReadLocalStorage } from "usehooks-ts";
-import { useState } from "react";
 
-interface AddTransactionFormProps {
+interface EditTransactionFormProps {
   setOpen: (open: boolean) => void;
+  data: z.infer<typeof transactionSchema>;
+  trasactionId: string;
 }
 
-export default function AddTransactionForm({
+export default function EditTransactionForm({
   setOpen,
-}: AddTransactionFormProps) {
+  data,
+  trasactionId,
+}: EditTransactionFormProps) {
   const form = useForm<z.infer<typeof transactionSchema>>({
     resolver: zodResolver(transactionSchema),
     defaultValues: {
-      tags: ["expense"],
-      date: new Date(),
+      ...data,
     },
   });
 
   const defaultAccountId = useReadLocalStorage("default_accountId") as string;
   const { ErrorToast, SuccessToast } = useAppToasts();
-  const createTransactions = api.transaction.createTransactions.useMutation();
+  const editTransaction = api.transaction.editTransaction.useMutation();
   const utils = api.useUtils();
-  const [isAiHelp, setIsAiHelp] = useState<boolean>(false);
 
   async function onSubmit(values: z.infer<typeof transactionSchema>) {
-    console.log("🧭 Form submitted with values:", values);
-
     if (!defaultAccountId) {
       ErrorToast({
         title: "Missing Account ID",
@@ -80,30 +78,31 @@ export default function AddTransactionForm({
     try {
       const formattedValues = {
         ...values,
-        accountId: defaultAccountId,
+        id: trasactionId,
       };
 
-      await createTransactions.mutateAsync(formattedValues);
+      await editTransaction.mutateAsync(formattedValues);
 
       SuccessToast({
-        title: "Transaction Created",
-        description: "Your transaction was successfully added.",
+        title: "Transaction Edited",
+        description: "Your transaction was successfully edited.",
       });
 
       await utils.transaction.getTransactions.invalidate();
+      await utils.transaction.getDefaultAccountsTransactions.invalidate();
 
       setOpen(false);
 
       form.reset();
     } catch (error: any) {
-      console.error("Transaction creation error:", error);
+      console.error("Transaction edition error:", error);
       const errorMessage =
         error?.response?.data?.message ||
         error?.message ||
-        "Something went wrong while creating the transaction. Please try again.";
+        "Something went wrong while editing the transaction. Please try again.";
 
       ErrorToast({
-        title: "Failed to Create Transaction",
+        title: "Failed to Edit Transaction",
         description: errorMessage,
       });
     }
@@ -120,7 +119,7 @@ export default function AddTransactionForm({
             control={form.control}
             name="amount"
             render={({ field }) => (
-              <FormItem className="col-span-2">
+              <FormItem>
                 <FormLabel>Transaction Amount</FormLabel>
                 <FormControl>
                   <Input
@@ -317,9 +316,9 @@ export default function AddTransactionForm({
           <Button
             className="flex-1"
             type="submit"
-            disabled={createTransactions.isPending}
+            disabled={editTransaction.isPending}
           >
-            {createTransactions.isPending ? "Adding..." : "Add Transaction"}
+            {editTransaction.isPending ? "Adding..." : "Add Transaction"}
           </Button>
         </SheetFooter>
       </form>

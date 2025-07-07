@@ -1,5 +1,5 @@
 "use server";
-import type { PrismaClient } from "@prisma/client";
+import type { PrismaClient, TransactionType } from "@prisma/client";
 import { db } from "./db";
 import { getDateRange } from "@/utils/get-dates";
 import { userId } from "./api/routers/budget";
@@ -94,3 +94,4 @@ export const getTotalExpenseAndIncomeAllAccounts = async () => {
     remainingBalance,
   };
 };
+
