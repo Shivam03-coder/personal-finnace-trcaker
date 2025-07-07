@@ -1,8 +1,5 @@
 import { accountSchema } from "@/schema/account.schema";
-import {
-  getDefaultAccountId,
-  getTotalExpenseAndIncomeCurrentAccount,
-} from "@/server/action";
+import { getDefaultAccountId, getTotalExpenseAndIncomeAllAccounts } from "@/server/action";
 import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
 import z from "zod";
 
@@ -95,6 +92,6 @@ export const accountRouter = createTRPCRouter({
   }),
 
   getSummary: publicProcedure.query(async () => {
-    return await getTotalExpenseAndIncomeCurrentAccount();
+    return await getTotalExpenseAndIncomeAllAccounts();
   }),
 });

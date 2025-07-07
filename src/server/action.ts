@@ -43,25 +43,13 @@ export const getTransactions = async (prisma: PrismaClient, days: number) => {
   });
 };
 
-export const getTotalExpenseAndIncomeCurrentAccount = async () => {
-  const accountId = await getDefaultAccountId();
-  if (!accountId) throw new Error("No default account found");
-
-  const account = await db.account.findUnique({
-    where: { id: accountId },
-  });
-
-  if (!account) throw new Error("Account not found");
-
-  const userId = account.userId;
-
+export const getTotalExpenseAndIncomeAllAccounts = async () => {
   const startOfMonth = new Date();
   startOfMonth.setDate(1);
   startOfMonth.setHours(0, 0, 0, 0);
 
   const expensesResult = await db.transaction.aggregate({
     where: {
-      accountId,
       userId,
       type: {
         in: ["PAYMENT", "TRANSFER", "WITHDRAWAL"],
@@ -76,7 +64,6 @@ export const getTotalExpenseAndIncomeCurrentAccount = async () => {
 
   const incomeResult = await db.transaction.aggregate({
     where: {
-      accountId,
       userId,
       type: {
         in: ["DEPOSIT", "WITHDRAWAL"],

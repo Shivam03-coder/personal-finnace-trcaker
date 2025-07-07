@@ -1,9 +1,7 @@
 "use client";
 
-import { TrendingUp, Wallet, Pencil } from "lucide-react";
+import { Wallet, Pencil } from "lucide-react";
 import { Pie, PieChart, Cell, ResponsiveContainer } from "recharts";
-import { useQuery } from "@tanstack/react-query";
-import { useReadLocalStorage } from "usehooks-ts";
 import { api } from "@/trpc/react";
 import { useState } from "react";
 
@@ -11,7 +9,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -22,12 +19,8 @@ import AddBudgetDialog from "./add-budget-dialog";
 const COLORS = ["#0088FE", "#FF8042"];
 
 function BudgetPieChart() {
-  const defaultAccountId = useReadLocalStorage("default_accountId") as string;
   const [isEditing, setIsEditing] = useState(false);
-
-  const { data, isLoading, error } = api.budget.getCurrentBudget.useQuery({
-    accountId: defaultAccountId,
-  });
+  const { data, isLoading, error } = api.account.getSummary.useQuery();
 
   if (isLoading) return <Skeleton className="h-full w-full rounded-lg" />;
   if (error)
@@ -37,18 +30,16 @@ function BudgetPieChart() {
       </div>
     );
 
-  const remaining = Math.max(
-    0,
-    (data?.budget?.amount ?? 0) - (data?.currentExpense ?? 0),
-  );
-  const expenses = data?.currentExpense ?? 0;
-  const budgetPercentage = data?.budget
-    ? ((expenses / data.budget.amount) * 100).toFixed(1)
-    : "0";
+  const totalBudget = data?.totalBudget ?? 0;
+  const totalExpense = data?.totalExpense ?? 0;
+  const remaining = Math.max(0, totalBudget - totalExpense);
+
+  const budgetPercentage =
+    totalBudget > 0 ? ((totalExpense / totalBudget) * 100).toFixed(1) : "0";
 
   const chartData = [
     { name: "Remaining", value: remaining },
-    { name: "Expenses", value: expenses },
+    { name: "Expenses", value: totalExpense },
   ];
 
   return (
@@ -71,7 +62,7 @@ function BudgetPieChart() {
           </Button>
         </div>
         <CardTitle className="pt-1 text-3xl font-semibold">
-          ₹{(data?.budget?.amount ?? 0).toLocaleString("en-IN")}
+          ₹{totalBudget.toLocaleString("en-IN")}
         </CardTitle>
       </CardHeader>
 
@@ -135,7 +126,7 @@ function BudgetPieChart() {
             </div>
             <span className="text-sm font-medium">
               ₹
-              {expenses.toLocaleString("en-IN", {
+              {totalExpense.toLocaleString("en-IN", {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2,
               })}
@@ -147,7 +138,7 @@ function BudgetPieChart() {
         <AddBudgetDialog
           open={isEditing}
           setOpen={setIsEditing}
-          initialAmount={data?.budget?.amount ?? 0.0}
+          initialAmount={totalBudget}
         />
       )}
     </Card>
