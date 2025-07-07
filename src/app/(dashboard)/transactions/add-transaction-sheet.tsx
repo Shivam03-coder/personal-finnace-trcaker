@@ -22,7 +22,7 @@ function AddTransactionSheet({ open, setOpen }: AddTransactionSheetProps) {
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetContent
         side="right"
-        className="min-h-screen w-full overflow-y-auto sm:max-w-lg"
+        className="min-h-screen w-full rounded-l-2xl overflow-y-auto sm:max-w-lg"
       >
         <SheetHeader className="hidden">
           <SheetTitle className="text-left">Add New Transaction</SheetTitle>
