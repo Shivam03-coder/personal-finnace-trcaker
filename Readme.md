@@ -1,3 +1,6 @@
+![image](https://github.com/user-attachments/assets/25671ffa-57ce-4212-a1bf-bb0d59093f81)
+
+
 # FIN Tracker 💰
 
 A modern, full-stack personal finance tracker built with Next.js 15, TypeScript, and Prisma. Track your income, expenses, and financial goals with an intuitive and responsive interface.
