@@ -42,3 +42,67 @@ export const getTransactions = async (prisma: PrismaClient, days: number) => {
     },
   });
 };
+
+export const getTotalExpenseAndIncomeCurrentAccount = async () => {
+  const accountId = await getDefaultAccountId();
+  if (!accountId) throw new Error("No default account found");
+
+  const account = await db.account.findUnique({
+    where: { id: accountId },
+  });
+
+  if (!account) throw new Error("Account not found");
+
+  const userId = account.userId;
+
+  const startOfMonth = new Date();
+  startOfMonth.setDate(1);
+  startOfMonth.setHours(0, 0, 0, 0);
+
+  const expensesResult = await db.transaction.aggregate({
+    where: {
+      accountId,
+      userId,
+      type: {
+        in: ["PAYMENT", "TRANSFER", "WITHDRAWAL"],
+      },
+      date: { gte: startOfMonth },
+    },
+    _sum: {
+      amount: true,
+    },
+  });
+  const totalExpense = expensesResult._sum.amount ?? 0;
+
+  const incomeResult = await db.transaction.aggregate({
+    where: {
+      accountId,
+      userId,
+      type: {
+        in: ["DEPOSIT", "WITHDRAWAL"],
+      },
+      date: { gte: startOfMonth },
+    },
+    _sum: {
+      amount: true,
+    },
+  });
+  const totalIncome = incomeResult._sum.amount ?? 0;
+
+  const netIncome = totalIncome - totalExpense;
+
+  const budget = await db.budget.findUnique({
+    where: { userId },
+  });
+  const totalBudget = budget?.amount ?? 0;
+
+  const remainingBalance = totalBudget - totalExpense;
+
+  return {
+    totalExpense,
+    totalIncome,
+    netIncome,
+    totalBudget,
+    remainingBalance,
+  };
+};
