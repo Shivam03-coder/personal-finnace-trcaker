@@ -19,6 +19,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const allTransactionTypes: TransactionType[] = [
   "DEPOSIT",
@@ -29,7 +30,7 @@ const allTransactionTypes: TransactionType[] = [
 ];
 
 function TransactionTypeRadarChart() {
-  const { data: transactions } =
+  const { data: transactions, isLoading } =
     api.account.getDefaultAccountsTransactions.useQuery();
 
   const chartData = React.useMemo(() => {
@@ -65,19 +66,7 @@ function TransactionTypeRadarChart() {
     },
   } satisfies ChartConfig;
 
-  if (!transactions) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Transaction Analysis</CardTitle>
-          <CardDescription>Loading transaction data...</CardDescription>
-        </CardHeader>
-        <CardContent className="flex h-[250px] items-center justify-center">
-          Loading...
-        </CardContent>
-      </Card>
-    );
-  }
+  if (isLoading) return <Skeleton className="h-full w-full rounded-lg" />;
 
   return (
     <Card>

@@ -29,7 +29,7 @@ function BudgetPieChart() {
     accountId: defaultAccountId,
   });
 
-  if (isLoading) return <Skeleton className="h-[300px] w-full rounded-lg" />;
+  if (isLoading) return <Skeleton className="h-full w-full rounded-lg" />;
   if (error)
     return (
       <div className="p-4 text-center text-red-500">

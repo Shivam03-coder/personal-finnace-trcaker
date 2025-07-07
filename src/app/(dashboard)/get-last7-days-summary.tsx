@@ -23,6 +23,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const LastSevenDaysNetTransaction = () => {
   const {
@@ -83,21 +84,8 @@ const LastSevenDaysNetTransaction = () => {
     });
   }, [transactions, today]);
 
-  if (isLoading) {
-    return (
-      <Card className="text-muted-foreground flex min-h-[300px] items-center justify-center">
-        Loading...
-      </Card>
-    );
-  }
-
-  if (error) {
-    return (
-      <Card className="flex min-h-[300px] items-center justify-center text-red-500">
-        Error loading transactions.
-      </Card>
-    );
-  }
+  if (isLoading)
+    return <Skeleton className="col-span-2 h-[400px] w-full rounded-lg" />;
 
   return (
     <Card className="col-span-2">
