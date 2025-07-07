@@ -1,13 +1,11 @@
 import { DataTable } from "@/components/data-table";
 import React from "react";
-import { expenseColumns } from "./ expense-table-cols";
 import { api } from "@/trpc/react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { curren_account_transaction_table_cols } from "./curren-account-transaction-table-cols";
 
 const TransactionDataTable = () => {
-  const { data, isLoading } =
-    api.transaction.getDefaultAccountsTransactions.useQuery();
+  const { data, isLoading } = api.transaction.getTransactions.useQuery();
 
   if (isLoading) {
     return (

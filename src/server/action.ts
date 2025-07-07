@@ -55,6 +55,7 @@ export const getTotalExpenseAndIncomeAllAccounts = async () => {
         in: ["PAYMENT", "TRANSFER", "WITHDRAWAL"],
       },
       date: { gte: startOfMonth },
+      status: "COMPLETED",
     },
     _sum: {
       amount: true,

@@ -1,5 +1,8 @@
 import { accountSchema } from "@/schema/account.schema";
-import { getDefaultAccountId, getTotalExpenseAndIncomeAllAccounts } from "@/server/action";
+import {
+  getDefaultAccountId,
+  getTotalExpenseAndIncomeAllAccounts,
+} from "@/server/action";
 import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
 import z from "zod";
 
@@ -77,11 +80,8 @@ export const accountRouter = createTRPCRouter({
     }),
 
   getDefaultAccountsTransactions: publicProcedure.query(async ({ ctx }) => {
-    const accountId = await getDefaultAccountId();
-
     return await ctx.db.transaction.findMany({
       where: {
-        accountId,
         status: "COMPLETED",
       },
       select: {

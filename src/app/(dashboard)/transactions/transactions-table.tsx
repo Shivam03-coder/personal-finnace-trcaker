@@ -8,7 +8,8 @@ import AddTransactionDialog from "./add-transaction-dialog";
 
 function TransactionTable() {
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
-  const { data, isLoading } = api.transaction.getTransactions.useQuery();
+  const { data, isLoading } =
+    api.transaction.getDefaultAccountsTransactions.useQuery();
 
   const handleOpenDialog = useCallback(() => {
     setIsDialogOpen(true);
