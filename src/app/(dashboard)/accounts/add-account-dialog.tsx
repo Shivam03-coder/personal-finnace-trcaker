@@ -21,7 +21,10 @@ function AddAccountDialog({ open = true, setOpen }: AddAccountDialogProps) {
         <DialogHeader className="hidden">
           <DialogTitle>ADD YOUR ACCOUNT</DialogTitle>
         </DialogHeader>
+        <div className="mx-auto">
+
         <AddAccountForm setOpen={setOpen} />
+        </div>
       </DialogContent>
     </Dialog>
   );

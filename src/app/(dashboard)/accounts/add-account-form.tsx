@@ -72,7 +72,7 @@ function AddAccountForm({ setOpen }: AddAccountFormProps) {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="font-lexend w-full space-y-8 p-3"
+        className="font-lexend w-full mx-auto space-y-8 p-3"
       >
         <FormField
           control={form.control}
@@ -159,7 +159,7 @@ function AddAccountForm({ setOpen }: AddAccountFormProps) {
                 <FormLabel className="text-sm font-medium">
                   Set as default account
                 </FormLabel>
-                <p className="mt-1 text-xs whitespace-nowrap">
+                <p className="mt-1 text-xs ">
                   Note: Only one account can be set as default at a time.
                 </p>
                 <FormMessage className="text-xs" />

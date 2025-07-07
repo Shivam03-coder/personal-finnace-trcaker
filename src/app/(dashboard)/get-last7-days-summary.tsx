@@ -88,7 +88,7 @@ const LastSevenDaysNetTransaction = () => {
     return <Skeleton className="col-span-2 h-[400px] w-full rounded-lg" />;
 
   return (
-    <Card className="col-span-2">
+    <Card>
       <CardHeader>
         <CardTitle>Net Transactions - Last 7 Days</CardTitle>
         <CardDescription>Daily income and expenses overview</CardDescription>
