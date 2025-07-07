@@ -2,7 +2,7 @@ import { transactionSchema } from "@/schema/transaction.schema";
 import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
 import z from "zod";
 import { subDays, startOfDay } from "date-fns";
-import { getDefaultAccountId } from "@/server/action";
+import { getDefaultAccountId, getTransactions } from "@/server/action";
 import { getIncrementAndDecrementOfAmount } from "@/utils/get-amount";
 
 export const transactionRouter = createTRPCRouter({
@@ -146,4 +146,52 @@ export const transactionRouter = createTRPCRouter({
       },
     });
   }),
+
+  getDailySummary: publicProcedure
+    .input(z.object({ days: z.number().min(1).max(365).default(7) }))
+    .query(async ({ ctx, input }) => {
+      const transactions = await getTransactions(ctx.db, input.days);
+
+      const dates = Array.from({ length: input.days })
+        .map((_, i) => {
+          const d = subDays(new Date(), i);
+          return startOfDay(d).toISOString().split("T")[0];
+        })
+        .reverse();
+
+      const dailySummary: Record<
+        string,
+        { income: number; expense: number; net: number }
+      > = {};
+
+      for (const date of dates) {
+        dailySummary[date!] = { income: 0, expense: 0, net: 0 };
+      }
+
+      for (const tx of transactions) {
+        const txDate = startOfDay(tx.date)
+          .toISOString()
+          .split("T")[0] as string;
+        if (!dailySummary[txDate]) continue;
+
+        const isIncome = tx.type === "DEPOSIT" || tx.type === "REFUND";
+        const isExpense =
+          tx.type === "WITHDRAWAL" ||
+          tx.type === "PAYMENT" ||
+          tx.type === "TRANSFER";
+
+        if (isIncome) {
+          dailySummary[txDate].income += tx.amount;
+          dailySummary[txDate].net += tx.amount;
+        } else if (isExpense) {
+          dailySummary[txDate].expense += tx.amount;
+          dailySummary[txDate].net -= tx.amount;
+        }
+      }
+
+      return dates.map((date) => ({
+        date,
+        ...dailySummary[date!],
+      }));
+    }),
 });

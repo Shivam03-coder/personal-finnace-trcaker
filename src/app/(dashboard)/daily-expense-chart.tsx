@@ -25,229 +25,33 @@ import {
 } from "@/components/ui/select";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { useEffect, useState } from "react";
-
-// Expense data for different categories
-const expenseData = [
-  {
-    date: "2024-04-01",
-    food: 1200,
-    transport: 500,
-    entertainment: 800,
-    bills: 2500,
-  },
-  { date: "2024-04-02", food: 800, transport: 300, entertainment: 0, bills: 0 },
-  {
-    date: "2024-04-03",
-    food: 1500,
-    transport: 700,
-    entertainment: 1200,
-    bills: 0,
-  },
-  {
-    date: "2024-04-04",
-    food: 900,
-    transport: 400,
-    entertainment: 500,
-    bills: 3500,
-  },
-  {
-    date: "2024-04-05",
-    food: 1800,
-    transport: 600,
-    entertainment: 1500,
-    bills: 0,
-  },
-  {
-    date: "2024-04-06",
-    food: 700,
-    transport: 200,
-    entertainment: 2000,
-    bills: 0,
-  },
-  {
-    date: "2024-04-07",
-    food: 1200,
-    transport: 500,
-    entertainment: 300,
-    bills: 0,
-  },
-  {
-    date: "2024-04-08",
-    food: 1000,
-    transport: 400,
-    entertainment: 700,
-    bills: 2800,
-  },
-  { date: "2024-04-09", food: 600, transport: 300, entertainment: 0, bills: 0 },
-  {
-    date: "2024-04-10",
-    food: 1300,
-    transport: 450,
-    entertainment: 900,
-    bills: 0,
-  },
-  {
-    date: "2024-04-11",
-    food: 950,
-    transport: 350,
-    entertainment: 1100,
-    bills: 3200,
-  },
-  {
-    date: "2024-04-12",
-    food: 1100,
-    transport: 500,
-    entertainment: 600,
-    bills: 0,
-  },
-  {
-    date: "2024-04-13",
-    food: 1400,
-    transport: 600,
-    entertainment: 1800,
-    bills: 0,
-  },
-  {
-    date: "2024-04-14",
-    food: 800,
-    transport: 200,
-    entertainment: 400,
-    bills: 0,
-  },
-  {
-    date: "2024-04-15",
-    food: 1600,
-    transport: 700,
-    entertainment: 1200,
-    bills: 2700,
-  },
-  { date: "2024-04-16", food: 750, transport: 300, entertainment: 0, bills: 0 },
-  {
-    date: "2024-04-17",
-    food: 900,
-    transport: 400,
-    entertainment: 700,
-    bills: 3100,
-  },
-  {
-    date: "2024-04-18",
-    food: 1700,
-    transport: 650,
-    entertainment: 1500,
-    bills: 0,
-  },
-  {
-    date: "2024-04-19",
-    food: 850,
-    transport: 350,
-    entertainment: 500,
-    bills: 0,
-  },
-  {
-    date: "2024-04-20",
-    food: 1100,
-    transport: 450,
-    entertainment: 900,
-    bills: 2900,
-  },
-  {
-    date: "2024-04-21",
-    food: 600,
-    transport: 200,
-    entertainment: 300,
-    bills: 0,
-  },
-  {
-    date: "2024-04-22",
-    food: 1300,
-    transport: 500,
-    entertainment: 1100,
-    bills: 0,
-  },
-  {
-    date: "2024-04-23",
-    food: 950,
-    transport: 400,
-    entertainment: 600,
-    bills: 3300,
-  },
-  {
-    date: "2024-04-24",
-    food: 1200,
-    transport: 550,
-    entertainment: 800,
-    bills: 0,
-  },
-  {
-    date: "2024-04-25",
-    food: 800,
-    transport: 300,
-    entertainment: 400,
-    bills: 0,
-  },
-  {
-    date: "2024-04-26",
-    food: 1500,
-    transport: 600,
-    entertainment: 1300,
-    bills: 3000,
-  },
-  {
-    date: "2024-04-27",
-    food: 700,
-    transport: 250,
-    entertainment: 500,
-    bills: 0,
-  },
-  {
-    date: "2024-04-28",
-    food: 1000,
-    transport: 400,
-    entertainment: 700,
-    bills: 0,
-  },
-  {
-    date: "2024-04-29",
-    food: 1400,
-    transport: 550,
-    entertainment: 1000,
-    bills: 3400,
-  },
-  {
-    date: "2024-04-30",
-    food: 900,
-    transport: 350,
-    entertainment: 600,
-    bills: 0,
-  },
-];
+import { api } from "@/trpc/react";
 
 const chartConfig = {
-  total: {
-    label: "Total Expenses",
+  income: {
+    label: "Income",
+    color: "var(--income-color)",
   },
-  food: {
-    label: "Food",
-    color: "var(--food-color)",
+  expense: {
+    label: "Expense",
+    color: "var(--expense-color)",
   },
-  transport: {
-    label: "Transport",
-    color: "var(--transport-color)",
-  },
-  entertainment: {
-    label: "Entertainment",
-    color: "var(--entertainment-color)",
-  },
-  bills: {
-    label: "Bills",
-    color: "var(--bills-color)",
+  net: {
+    label: "Net",
+    color: "var(--net-color)",
   },
 } satisfies ChartConfig;
 
 export default function DailyExpenseChart() {
   const isMobile = useIsMobile();
   const [timeRange, setTimeRange] = useState<string>("30d");
-  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [selectedView, setSelectedView] = useState<
+    "income" | "expense" | "net"
+  >("net");
+
+  const { data: transactions = [] } = api.transaction.getDailySummary.useQuery({
+    days: timeRange === "7d" ? 7 : timeRange === "30d" ? 30 : 90,
+  });
 
   useEffect(() => {
     if (isMobile) {
@@ -255,42 +59,23 @@ export default function DailyExpenseChart() {
     }
   }, [isMobile]);
 
-  const filteredData = expenseData.filter((item) => {
-    const date = new Date(item.date);
-    const referenceDate = new Date("2024-04-30");
-    let daysToSubtract = 30;
-    if (timeRange === "90d") {
-      daysToSubtract = 90;
-    } else if (timeRange === "7d") {
-      daysToSubtract = 7;
-    }
-    const startDate = new Date(referenceDate);
-    startDate.setDate(startDate.getDate() - daysToSubtract);
-    return date >= startDate;
-  });
-
-  const dataWithTotals = filteredData.map((item) => ({
-    ...item,
-    total: item.food + item.transport + item.entertainment + item.bills,
+  // Process the data for the chart
+  const chartData = transactions.map((item) => ({
+    date: item.date,
+    income: item.income,
+    expense: item.expense,
+    net: item.net,
   }));
-
-  const displayData =
-    selectedCategory === "all"
-      ? dataWithTotals
-      : dataWithTotals.map((item) => ({
-          date: item.date,
-          [selectedCategory]: item[selectedCategory as keyof typeof item],
-        }));
 
   return (
     <Card className="@container/card">
       <CardHeader>
-        <CardTitle>Expense Tracker</CardTitle>
+        <CardTitle>Transaction Summary</CardTitle>
         <CardDescription>
           <span className="hidden @[540px]/card:block">
-            Track your spending over time
+            Track your income and expenses over time
           </span>
-          <span className="@[540px]/card:hidden">Your spending trends</span>
+          <span className="@[540px]/card:hidden">Your transaction trends</span>
         </CardDescription>
         <CardAction className="flex flex-col gap-4 sm:flex-row">
           <ToggleGroup
@@ -326,29 +111,28 @@ export default function DailyExpenseChart() {
             </SelectContent>
           </Select>
 
-          <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+          <Select
+            value={selectedView}
+            onValueChange={(v) =>
+              setSelectedView(v as "income" | "expense" | "net")
+            }
+          >
             <SelectTrigger
               className="flex w-40 **:data-[slot=select-value]:block **:data-[slot=select-value]:truncate"
               size="sm"
-              aria-label="Select category"
+              aria-label="Select view"
             >
-              <SelectValue placeholder="All categories" />
+              <SelectValue placeholder="View" />
             </SelectTrigger>
             <SelectContent className="rounded-xl">
-              <SelectItem value="all" className="rounded-lg">
-                All categories
+              <SelectItem value="net" className="rounded-lg">
+                Net Balance
               </SelectItem>
-              <SelectItem value="food" className="rounded-lg">
-                Food
+              <SelectItem value="income" className="rounded-lg">
+                Income
               </SelectItem>
-              <SelectItem value="transport" className="rounded-lg">
-                Transport
-              </SelectItem>
-              <SelectItem value="entertainment" className="rounded-lg">
-                Entertainment
-              </SelectItem>
-              <SelectItem value="bills" className="rounded-lg">
-                Bills
+              <SelectItem value="expense" className="rounded-lg">
+                Expenses
               </SelectItem>
             </SelectContent>
           </Select>
@@ -359,33 +143,19 @@ export default function DailyExpenseChart() {
           config={chartConfig}
           className="aspect-auto h-[250px] w-full"
         >
-          <AreaChart data={displayData}>
+          <AreaChart data={chartData}>
             <defs>
-              <linearGradient id="fillFood" x1="0" y1="0" x2="0" y2="1">
+              <linearGradient id="fillIncome" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor="#22c55e" stopOpacity={0.8} />
                 <stop offset="95%" stopColor="#22c55e" stopOpacity={0.1} />
               </linearGradient>
-              <linearGradient id="fillTransport" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8} />
-                <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.1} />
-              </linearGradient>
-              <linearGradient
-                id="fillEntertainment"
-                x1="0"
-                y1="0"
-                x2="0"
-                y2="1"
-              >
+              <linearGradient id="fillExpense" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor="#f43f5e" stopOpacity={0.8} />
                 <stop offset="95%" stopColor="#f43f5e" stopOpacity={0.1} />
               </linearGradient>
-              <linearGradient id="fillBills" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#f97316" stopOpacity={0.8} />
-                <stop offset="95%" stopColor="#f97316" stopOpacity={0.1} />
-              </linearGradient>
-              <linearGradient id="fillTotal" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.8} />
-                <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0.1} />
+              <linearGradient id="fillNet" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8} />
+                <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.1} />
               </linearGradient>
             </defs>
             <CartesianGrid vertical={false} />
@@ -421,43 +191,26 @@ export default function DailyExpenseChart() {
               }
             />
 
-            {selectedCategory === "all" ? (
-              <>
-                <Area
-                  dataKey="food"
-                  type="natural"
-                  fill="url(#fillFood)"
-                  stroke="#22c55e"
-                  stackId="1"
-                />
-                <Area
-                  dataKey="transport"
-                  type="natural"
-                  fill="url(#fillTransport)"
-                  stroke="#3b82f6"
-                  stackId="1"
-                />
-                <Area
-                  dataKey="entertainment"
-                  type="natural"
-                  fill="url(#fillEntertainment)"
-                  stroke="#f43f5e"
-                  stackId="1"
-                />
-                <Area
-                  dataKey="bills"
-                  type="natural"
-                  fill="url(#fillBills)"
-                  stroke="#f97316"
-                  stackId="1"
-                />
-              </>
+            {selectedView === "net" ? (
+              <Area
+                dataKey="net"
+                type="natural"
+                fill="url(#fillNet)"
+                stroke="#3b82f6"
+              />
+            ) : selectedView === "income" ? (
+              <Area
+                dataKey="income"
+                type="natural"
+                fill="url(#fillIncome)"
+                stroke="#22c55e"
+              />
             ) : (
               <Area
-                dataKey={selectedCategory}
+                dataKey="expense"
                 type="natural"
-                fill={`url(#fill${selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1)})`}
-                stroke={"#8b5cf6"}
+                fill="url(#fillExpense)"
+                stroke="#f43f5e"
               />
             )}
           </AreaChart>

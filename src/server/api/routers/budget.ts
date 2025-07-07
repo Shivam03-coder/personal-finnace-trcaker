@@ -4,7 +4,7 @@ import getStartDateAndEndDate from "@/utils/get-dates";
 import { TransactionType } from "@prisma/client";
 import z from "zod";
 
-const userId = "65c0d2d242fd32ba15fdee12";
+export const userId = "65c0d2d242fd32ba15fdee12";
 
 export const budgetRouter = createTRPCRouter({
   upsertBudget: publicProcedure
