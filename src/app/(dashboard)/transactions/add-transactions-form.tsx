@@ -86,8 +86,7 @@ export default function AddTransactionForm({
         description: "Your transaction was successfully added.",
       });
 
-      await utils.transaction.getTransactions.invalidate();
-      await utils.transaction.getDefaultAccountsTransactions.invalidate();
+      await utils.transaction.invalidate();
 
       setOpen(false);
 
