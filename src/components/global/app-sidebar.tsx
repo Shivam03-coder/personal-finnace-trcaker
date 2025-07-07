@@ -24,8 +24,8 @@ import { Link } from "next-view-transitions";
 
 const data = {
   user: {
-    name: "Alex Johnson",
-    email: "alex@example.com",
+    name: "Shivam Anand",
+    email: "shivam850anand@gmail.com",
     avatar: "/avatars/alex.jpg",
   },
   navMain: [

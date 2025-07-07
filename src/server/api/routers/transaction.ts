@@ -13,10 +13,11 @@ export const transactionRouter = createTRPCRouter({
   createTransactions: publicProcedure
     .input(transactionSchema)
     .mutation(async ({ ctx, input }) => {
+      const accountId = await getDefaultAccountId();
+
       const acc = await ctx.db.account.findUnique({
         where: {
-          id: input.accountId,
-          isDefaultAccount: true,
+          id: accountId,
         },
       });
 

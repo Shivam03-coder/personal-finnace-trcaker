@@ -189,9 +189,6 @@ export const triggerRecurringTransactions = inngest.createFunction(
             where: {
               isRecurring: true,
               status: "COMPLETED",
-              recurringInterval: {
-                not: null,
-              },
               OR: [
                 { lastTimeRecurringProcessed: null },
                 {
