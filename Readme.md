@@ -201,6 +201,6 @@ The app can be deployed to any platform that supports Node.js:
 - [ ] Recurring transactions
 
 
-Made with ❤️ by [Your Name](https://github.com/Shivam03-coder)
+Made with ❤️ by [Shivam Anand](https://github.com/Shivam03-coder)
 
 **⭐ Star this repository if you find it helpful!**
