@@ -53,6 +53,7 @@ model Transaction {
     isRecurring                Boolean            @default(false)
     recurringInterval          RecurringInterval?
     lastTimeRecurringProcessed DateTime?
+    nextRecurringDate          DateTime?
     tags                       String[]           @default([])
 
     userId String @db.ObjectId
