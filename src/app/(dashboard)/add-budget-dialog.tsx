@@ -1,6 +1,5 @@
 "use client";
 
-import * as React from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -15,6 +14,7 @@ import { Label } from "@/components/ui/label";
 import { api } from "@/trpc/react";
 import { useAppToasts } from "@/hooks/use-app-toast";
 import { useReadLocalStorage } from "usehooks-ts";
+import { useState } from "react";
 
 interface AddBudgetDialogProps {
   open: boolean;
@@ -27,7 +27,7 @@ const AddBudgetDialog = ({
   setOpen,
   initialAmount,
 }: AddBudgetDialogProps) => {
-  const [amount, setAmount] = React.useState(initialAmount);
+  const [amount, setAmount] = useState(initialAmount);
   const upsertBudget = api.budget.upsertBudget.useMutation();
   const defaultAccountId = useReadLocalStorage("default_accountId") as string;
   const { ErrorToast, SuccessToast, WarningToast } = useAppToasts();

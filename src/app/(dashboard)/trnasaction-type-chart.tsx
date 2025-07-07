@@ -1,10 +1,9 @@
 "use client";
 
-import { TrendingUp } from "lucide-react";
 import { PolarAngleAxis, PolarGrid, Radar, RadarChart } from "recharts";
 import { api } from "@/trpc/react";
 import { TransactionType } from "@prisma/client";
-import React from "react";
+import React, { useMemo } from "react";
 
 import {
   Card,
@@ -33,7 +32,7 @@ function TransactionTypeRadarChart() {
   const { data: transactions, isLoading } =
     api.account.getDefaultAccountsTransactions.useQuery();
 
-  const chartData = React.useMemo(() => {
+  const chartData = useMemo(() => {
     const initial: Record<TransactionType, number> = {
       DEPOSIT: 0,
       WITHDRAWAL: 0,
