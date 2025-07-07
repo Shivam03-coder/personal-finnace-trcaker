@@ -31,15 +31,10 @@ interface AccountActionProps {
 
 const AccountAction = ({
   row,
-  onEdit,
   onMakeDefault,
   onDelete,
 }: AccountActionProps) => {
   const [showDeleteAlert, setShowDeleteAlert] = useState(false);
-
-  const handleEdit = () => {
-    onEdit?.(row);
-  };
 
   const handleMakeDefault = () => {
     onMakeDefault?.(row);
@@ -68,7 +63,6 @@ const AccountAction = ({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-32">
-          <DropdownMenuItem onClick={handleEdit}>Edit</DropdownMenuItem>
           <DropdownMenuItem onClick={handleMakeDefault}>
             Make default
           </DropdownMenuItem>
@@ -90,8 +84,8 @@ const AccountAction = ({
             <AlertDialogDescription>
               This action cannot be undone. This will permanently delete the
               account
-              {row.original.accountName && ` "${row.original.accountName}"`} and remove all
-              associated data.
+              {row.original.accountName && ` "${row.original.accountName}"`} and
+              remove all associated data.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
