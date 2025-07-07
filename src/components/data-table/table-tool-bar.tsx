@@ -67,23 +67,6 @@ export function TableToolbar<TData>({
           </Button>
         )}
       </div>
-
-      {/* Right side: Search */}
-      <div className="flex w-full items-center gap-2 lg:w-auto">
-        <div className="relative w-full lg:w-64">
-          <IconSearch
-            className="text-muted-foreground absolute top-2.5 left-2.5"
-            size={16}
-          />
-          <Input
-            className="pl-8"
-            size={20}
-            placeholder="Search..."
-            value={searchValue}
-            onChange={(e) => onSearchChange(e.target.value)}
-          />
-        </div>
-      </div>
     </div>
   );
 }
