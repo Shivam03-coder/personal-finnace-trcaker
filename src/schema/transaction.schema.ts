@@ -1,5 +1,4 @@
 import {
-  CurrencyType,
   RecurringInterval,
   TransactionStatus,
   TransactionType,

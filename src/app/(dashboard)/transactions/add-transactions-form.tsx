@@ -1,5 +1,4 @@
 "use client";
-import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -35,7 +34,6 @@ import { TagsInput } from "@/components/ui/tags-input";
 import { transactionSchema } from "@/schema/transaction.schema";
 import { SheetClose, SheetFooter } from "@/components/ui/sheet";
 import {
-  CurrencyType,
   RecurringInterval,
   TransactionStatus,
   TransactionType,
@@ -43,7 +41,6 @@ import {
 import { api } from "@/trpc/react";
 import { useAppToasts } from "@/hooks/use-app-toast";
 import { useReadLocalStorage } from "usehooks-ts";
-import { useState } from "react";
 
 interface AddTransactionFormProps {
   setOpen: (open: boolean) => void;
@@ -64,7 +61,6 @@ export default function AddTransactionForm({
   const { ErrorToast, SuccessToast } = useAppToasts();
   const createTransactions = api.transaction.createTransactions.useMutation();
   const utils = api.useUtils();
-  const [isAiHelp, setIsAiHelp] = useState<boolean>(false);
 
   async function onSubmit(values: z.infer<typeof transactionSchema>) {
     console.log("🧭 Form submitted with values:", values);
@@ -91,6 +87,7 @@ export default function AddTransactionForm({
       });
 
       await utils.transaction.getTransactions.invalidate();
+      await utils.transaction.getDefaultAccountsTransactions.invalidate();
 
       setOpen(false);
 
