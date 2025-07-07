@@ -60,7 +60,8 @@ const AddBudgetDialog = ({
         description: "Your budget has been successfully saved",
       });
 
-      utils.budget.getCurrentBudget.invalidate();
+      utils.account.getSummary.invalidate();
+
       setOpen(false);
     } catch (error) {
       ErrorToast({
