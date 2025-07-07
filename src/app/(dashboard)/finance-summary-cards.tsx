@@ -8,6 +8,7 @@ import {
   Wallet,
 } from "lucide-react";
 import FinanceSummaryCard from "../../components/global/summary-card";
+import BudgetPieChart from "./monthly-budget";
 
 export default function FinanceSummaryCards() {
   const cardsData: FinanceCardData[] = [

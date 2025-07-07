@@ -1,42 +1,31 @@
-import { PrismaClient } from "@prisma/client";
+import { CurrencyType, PrismaClient } from "@prisma/client";
 import { faker } from "@faker-js/faker";
 
 const prisma = new PrismaClient();
 
 async function main() {
-  const transactionTypes: (
-    | "DEPOSIT"
-    | "WITHDRAWAL"
-    | "TRANSFER"
-    | "PAYMENT"
-    | "REFUND"
-  )[] = ["DEPOSIT", "WITHDRAWAL", "TRANSFER", "PAYMENT", "REFUND"];
-
-  const transactionStatuses: (
-    | "PENDING"
-    | "COMPLETED"
-    | "FAILED"
-    | "CANCELLED"
-  )[] = ["PENDING", "COMPLETED", "FAILED", "CANCELLED"];
-
-  const recurringIntervals: (
-    | "DAILY"
-    | "WEEKLY"
-    | "BIWEEKLY"
-    | "MONTHLY"
-    | "QUARTERLY"
-    | "YEARLY"
-  )[] = ["DAILY", "WEEKLY", "BIWEEKLY", "MONTHLY", "QUARTERLY", "YEARLY"];
-
-  const budgetCategories: (
-    | "GROCERIES"
-    | "RENT"
-    | "UTILITIES"
-    | "ENTERTAINMENT"
-    | "SAVINGS"
-    | "TRANSPORT"
-    | "OTHER"
-  )[] = [
+  const transactionTypes = [
+    "DEPOSIT",
+    "WITHDRAWAL",
+    "TRANSFER",
+    "PAYMENT",
+    "REFUND",
+  ] as const;
+  const transactionStatuses = [
+    "PENDING",
+    "COMPLETED",
+    "FAILED",
+    "CANCELLED",
+  ] as const;
+  const recurringIntervals = [
+    "DAILY",
+    "WEEKLY",
+    "BIWEEKLY",
+    "MONTHLY",
+    "QUARTERLY",
+    "YEARLY",
+  ] as const;
+  const budgetCategories = [
     "GROCERIES",
     "RENT",
     "UTILITIES",
@@ -44,13 +33,23 @@ async function main() {
     "SAVINGS",
     "TRANSPORT",
     "OTHER",
-  ];
+  ] as const;
 
-  const transactions = Array.from({ length: 30 }).map((_, i) => {
+  const acc = await prisma.account.findFirst({
+    where: {
+      isDefaultAccount: true,
+    },
+  });
+  // Calculate date range
+  const today = new Date();
+  const currentYear = today.getFullYear();
+  const mayFirst = new Date(currentYear, 4, 1); // May = month 4
+
+  const transactions = Array.from({ length: 30 }).map(() => {
     const isRecurring = Math.random() > 0.7; // 30% chance of being recurring
     const date = faker.date.between({
-      from: "2023-01-01T00:00:00.000Z",
-      to: "2023-12-31T00:00:00.000Z",
+      from: mayFirst,
+      to: today,
     });
 
     return {
@@ -63,7 +62,7 @@ async function main() {
           autoFormat: true,
         }),
       ),
-      currency: "INR",
+      currency: "INR" as CurrencyType,
       type: faker.helpers.arrayElement(transactionTypes),
       description: faker.finance.transactionDescription(),
       date: date,
@@ -77,7 +76,7 @@ async function main() {
         : null,
       tags: [faker.helpers.arrayElement(budgetCategories)],
       userId: "65c0d2d242fd32ba15fdee12",
-      accountId: "686a5a79888994d8c74486c9",
+      accountId: acc?.id!,
     };
   });
 
@@ -85,7 +84,7 @@ async function main() {
     data: transactions,
   });
 
-  console.log("Seeded 30 transactions");
+  console.log("Seeded 30 transactions between May 1st and today");
 }
 
 main()

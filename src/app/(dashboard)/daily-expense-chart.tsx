@@ -1,6 +1,5 @@
 "use client";
 
-import * as React from "react";
 import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
@@ -25,6 +24,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { useEffect, useState } from "react";
 
 // Expense data for different categories
 const expenseData = [
@@ -246,10 +246,10 @@ const chartConfig = {
 
 export default function DailyExpenseChart() {
   const isMobile = useIsMobile();
-  const [timeRange, setTimeRange] = React.useState("30d");
-  const [selectedCategory, setSelectedCategory] = React.useState("all");
+  const [timeRange, setTimeRange] = useState<string>("30d");
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (isMobile) {
       setTimeRange("7d");
     }

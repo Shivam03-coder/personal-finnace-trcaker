@@ -43,6 +43,7 @@ import {
 import { api } from "@/trpc/react";
 import { useAppToasts } from "@/hooks/use-app-toast";
 import { useReadLocalStorage } from "usehooks-ts";
+import ReceiptScanner from "./receipt-upload";
 
 interface AddTransactionFormProps {
   setOpen: (open: boolean) => void;
@@ -113,7 +114,7 @@ export default function AddTransactionForm({
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(onSubmit)}
-        className="mx-auto w-full space-y-8 px-6 py-8"
+        className="mx-auto w-full space-y-10 px-6 py-8"
       >
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           <FormField
@@ -331,13 +332,12 @@ export default function AddTransactionForm({
                   placeholder="Add tags (e.g., food, travel, utilities)"
                 />
               </FormControl>
-              <FormDescription>
-                Categorize your transaction with tags
-              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
+        
+        <ReceiptScanner />
 
         <SheetFooter className="flex flex-row">
           <SheetClose className="flex-1" asChild>

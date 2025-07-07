@@ -31,7 +31,6 @@ model Account {
     currency         String        @default("INR")
     status           AccountStatus @default(ACTIVE)
     Transaction      Transaction[]
-    Budget           Budget[]
 
     userId String @db.ObjectId
     user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -70,42 +69,17 @@ model Transaction {
 }
 
 model Budget {
-    id        String         @id @default(auto()) @map("_id") @db.ObjectId
-    name      String
-    amount    Float          @default(0.00)
-    currency  String         @default("INR")
-    category  BudgetCategory
-    period    BudgetPeriod   @default(MONTHLY)
+    id        String   @id @default(auto()) @map("_id") @db.ObjectId
+    amount    Float    @default(0.00)
+    period    String   @default("MONTHLY")
     startDate DateTime
     endDate   DateTime
-    notes     String?
-    userId    String         @unique @db.ObjectId
-    user      User?          @relation(fields: [userId], references: [id])
-    accountId String         @db.ObjectId
-    account   Account        @relation(fields: [accountId], references: [id])
-
+    userId    String   @unique @db.ObjectId
+    user      User?    @relation(fields: [userId], references: [id])
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
     @@map("budgets")
-}
-
-enum BudgetCategory {
-    GROCERIES
-    RENT
-    UTILITIES
-    ENTERTAINMENT
-    SAVINGS
-    TRANSPORT
-    OTHER
-}
-
-enum BudgetPeriod {
-    DAILY
-    WEEKLY
-    MONTHLY
-    YEARLY
-    CUSTOM
 }
 
 enum TransactionType {
