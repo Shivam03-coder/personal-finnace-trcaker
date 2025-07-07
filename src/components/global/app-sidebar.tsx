@@ -44,16 +44,6 @@ const data = {
       url: "/transactions",
       icon: IconReceipt,
     },
-    {
-      title: "Budgets",
-      url: "/budgets",
-      icon: IconPigMoney,
-    },
-    {
-      title: "Investments",
-      url: "/investments",
-      icon: IconTrendingUp,
-    },
   ],
 };
 

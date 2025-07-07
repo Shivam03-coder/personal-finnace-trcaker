@@ -59,6 +59,7 @@ export default function AddTransactionForm({
       date: new Date(),
     },
   });
+
   const defaultAccountId = useReadLocalStorage("default_accountId") as string;
 
   const { ErrorToast, SuccessToast } = useAppToasts();
@@ -336,7 +337,7 @@ export default function AddTransactionForm({
             </FormItem>
           )}
         />
-        
+
         <ReceiptScanner />
 
         <SheetFooter className="flex flex-row">

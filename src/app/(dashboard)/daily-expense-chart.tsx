@@ -269,13 +269,11 @@ export default function DailyExpenseChart() {
     return date >= startDate;
   });
 
-  // Calculate total expenses for each day
   const dataWithTotals = filteredData.map((item) => ({
     ...item,
     total: item.food + item.transport + item.entertainment + item.bills,
   }));
 
-  // Filter data based on selected category
   const displayData =
     selectedCategory === "all"
       ? dataWithTotals

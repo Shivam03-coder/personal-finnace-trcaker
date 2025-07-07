@@ -1,26 +1,45 @@
 import { transactionSchema } from "@/schema/transaction.schema";
 import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
 import z from "zod";
+import { subDays, startOfDay } from "date-fns";
+import { getDefaultAccountId } from "@/server/action";
+import { getIncrementAndDecrementOfAmount } from "@/utils/get-amount";
 
 export const transactionRouter = createTRPCRouter({
   createTransactions: publicProcedure
     .input(transactionSchema)
     .mutation(async ({ ctx, input }) => {
-      const isAccount = await ctx.db.account.findUnique({
+      const acc = await ctx.db.account.findUnique({
         where: {
           id: input.accountId,
           isDefaultAccount: true,
         },
       });
 
-      if (!isAccount) throw new Error("Account not found");
+      if (!acc) throw new Error("Account not found");
 
-      await ctx.db.transaction.create({
-        data: {
-          ...input,
-          userId: "65c0d2d242fd32ba15fdee12",
-          accountId: input.accountId as string,
-        },
+      const transactionType = input.type;
+
+      await ctx.db.$transaction(async (tx) => {
+        await tx.transaction.create({
+          data: {
+            ...input,
+            userId: "65c0d2d242fd32ba15fdee12",
+            accountId: input.accountId as string,
+          },
+        });
+
+        await tx.account.update({
+          where: {
+            id: acc.id,
+          },
+          data: {
+            accountBalance: getIncrementAndDecrementOfAmount(
+              transactionType,
+              acc.accountBalance,
+            ),
+          },
+        });
       });
     }),
 
@@ -81,4 +100,50 @@ export const transactionRouter = createTRPCRouter({
         },
       });
     }),
+
+  getLast7DaysSummary: publicProcedure.query(async ({ ctx }) => {
+    const today = new Date();
+    const sevenDaysAgo = subDays(startOfDay(today), 6);
+
+    const transactions = await ctx.db.transaction.findMany({
+      where: {
+        date: {
+          gte: sevenDaysAgo,
+          lte: today,
+        },
+      },
+      select: {
+        amount: true,
+        type: true,
+        date: true,
+      },
+    });
+
+    return transactions;
+  }),
+
+  getDefaultAccountsTransactions: publicProcedure.query(async ({ ctx }) => {
+    const accountId = await getDefaultAccountId();
+
+    return await ctx.db.transaction.findMany({
+      where: {
+        accountId,
+      },
+      select: {
+        id: true,
+        amount: true,
+        date: true,
+        currency: true,
+        description: true,
+        isRecurring: true,
+        status: true,
+        recurringInterval: true,
+        tags: true,
+        type: true,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+  }),
 });

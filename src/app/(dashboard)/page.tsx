@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 import FinanceSummaryCards from "./finance-summary-cards";
 import TransactionDataTable from "./transaction-data-table";
@@ -14,7 +15,7 @@ const DashboardHomePage = () => {
           <div className="px-4 lg:px-6">
             <DailyExpenseChart />
           </div>
-          {/* <TransactionDataTable /> */}
+          <TransactionDataTable />
         </div>
       </div>
     </div>

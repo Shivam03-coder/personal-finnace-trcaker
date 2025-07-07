@@ -42,43 +42,60 @@ async function main() {
   });
   // Calculate date range
   const today = new Date();
+  const currentMonth = today.getMonth();
   const currentYear = today.getFullYear();
-  const mayFirst = new Date(currentYear, 4, 1); // May = month 4
 
-  const transactions = Array.from({ length: 30 }).map(() => {
-    const isRecurring = Math.random() > 0.7; // 30% chance of being recurring
-    const date = faker.date.between({
-      from: mayFirst,
-      to: today,
-    });
+  const startOfRange = new Date(currentYear, currentMonth, 1);
+  const endOfRange = new Date(currentYear, currentMonth, 7, 23, 59, 59);
 
-    return {
-      amount: parseFloat(
-        faker.finance.amount({
-          min: 5,
-          max: 10000,
-          dec: 5,
-          symbol: "",
-          autoFormat: true,
-        }),
-      ),
-      currency: "INR" as CurrencyType,
-      type: faker.helpers.arrayElement(transactionTypes),
-      description: faker.finance.transactionDescription(),
-      date: date,
-      status: faker.helpers.arrayElement(transactionStatuses),
-      isRecurring: isRecurring,
-      recurringInterval: isRecurring
-        ? faker.helpers.arrayElement(recurringIntervals)
-        : null,
-      lastTimeRecurringProcessed: isRecurring
-        ? faker.date.recent({ days: 30 })
-        : null,
-      tags: [faker.helpers.arrayElement(budgetCategories)],
-      userId: "65c0d2d242fd32ba15fdee12",
-      accountId: acc?.id!,
-    };
+  const date = faker.date.between({
+    from: startOfRange,
+    to: endOfRange,
   });
+
+const transactions = Array.from({ length: 30 }).map(() => {
+  const isRecurring = Math.random() > 0.7;
+
+  // Always 1–7 of current month
+  const currentMonth = today.getMonth();
+  const currentYear = today.getFullYear();
+
+  const startOfRange = new Date(currentYear, currentMonth, 1);
+  const endOfRange = new Date(currentYear, currentMonth, 7, 23, 59, 59);
+
+  const date = faker.date.between({
+    from: startOfRange,
+    to: endOfRange,
+  });
+
+  return {
+    amount: parseFloat(
+      faker.finance.amount({
+        min: 5,
+        max: 10000,
+        dec: 5,
+        symbol: "",
+        autoFormat: true,
+      }),
+    ),
+    currency: "INR" as CurrencyType,
+    type: faker.helpers.arrayElement(transactionTypes),
+    description: faker.finance.transactionDescription(),
+    date: date,
+    status: faker.helpers.arrayElement(transactionStatuses),
+    isRecurring: isRecurring,
+    recurringInterval: isRecurring
+      ? faker.helpers.arrayElement(recurringIntervals)
+      : null,
+    lastTimeRecurringProcessed: isRecurring
+      ? faker.date.recent({ days: 30 })
+      : null,
+    tags: [faker.helpers.arrayElement(budgetCategories)],
+    userId: "65c0d2d242fd32ba15fdee12",
+    accountId: "686a5a79888994d8c74486c9",
+  };
+});
+
 
   await prisma.transaction.createMany({
     data: transactions,

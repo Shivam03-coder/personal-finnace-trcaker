@@ -76,7 +76,7 @@ export const budgetRouter = createTRPCRouter({
           amount: true,
         },
       });
-      console.log("🚀 ~ .query ~ expense:", expense)
+      console.log("🚀 ~ .query ~ expense:", expense);
 
       const budget = await ctx.db.budget.findFirst({
         where: {
@@ -88,8 +88,5 @@ export const budgetRouter = createTRPCRouter({
         budget: budget ? { ...budget, amount: budget.amount } : null,
         currentExpense: expense._sum.amount ?? 0.0,
       };
-
-
-      
     }),
 });

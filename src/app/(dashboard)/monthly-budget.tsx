@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
+import AddBudgetDialog from "./add-budget-dialog";
 
 const COLORS = ["#0088FE", "#FF8042"];
 
@@ -51,7 +52,7 @@ function BudgetPieChart() {
   ];
 
   return (
-    <Card className="h-full shadow-amber-200 shadow-sm">
+    <Card className="h-full shadow-sm shadow-amber-200">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -61,7 +62,6 @@ function BudgetPieChart() {
             </CardDescription>
           </div>
           <Button
-            variant="ghost"
             size="sm"
             className="h-8 w-8 rounded-full p-0"
             onClick={() => setIsEditing(!isEditing)}
@@ -143,6 +143,13 @@ function BudgetPieChart() {
           </div>
         </div>
       </CardContent>
+      {isEditing && (
+        <AddBudgetDialog
+          open={isEditing}
+          setOpen={setIsEditing}
+          initialAmount={data?.budget?.amount ?? 0.0}
+        />
+      )}
     </Card>
   );
 }
