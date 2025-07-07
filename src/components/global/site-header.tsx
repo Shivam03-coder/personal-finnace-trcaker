@@ -20,7 +20,7 @@ export function SiteHeader() {
         </Link>
         <div className="ml-auto flex items-center gap-2">
           <a
-            href="https://github.com/shadcn-ui/ui/tree/main/apps/v4/app/(examples)/dashboard"
+            href="https://github.com/Shivam03-coder/personal-finnace-trcaker"
             rel="noopener noreferrer"
             target="_blank"
             className="dark:text-foreground bg-amber-100 p-2 rounded-full"
