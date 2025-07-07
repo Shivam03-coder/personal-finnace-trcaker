@@ -1,6 +1,6 @@
 "use client";
 
-import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
   Card,
@@ -30,15 +30,15 @@ import { api } from "@/trpc/react";
 const chartConfig = {
   income: {
     label: "Income",
-    color: "var(--income-color)",
+    color: "#22c55e", 
   },
   expense: {
     label: "Expense",
-    color: "var(--expense-color)",
+    color: "#f43f5e", 
   },
   net: {
     label: "Net",
-    color: "var(--net-color)",
+    color: "#3b82f6",
   },
 } satisfies ChartConfig;
 
@@ -59,11 +59,10 @@ export default function DailyExpenseChart() {
     }
   }, [isMobile]);
 
-  // Process the data for the chart
   const chartData = transactions.map((item) => ({
     date: item.date,
     income: item.income,
-    expense: item.expense,
+    expense: Math.abs(item.expense!),
     net: item.net,
   }));
 
@@ -143,28 +142,14 @@ export default function DailyExpenseChart() {
           config={chartConfig}
           className="aspect-auto h-[250px] w-full"
         >
-          <AreaChart data={chartData}>
-            <defs>
-              <linearGradient id="fillIncome" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#22c55e" stopOpacity={0.8} />
-                <stop offset="95%" stopColor="#22c55e" stopOpacity={0.1} />
-              </linearGradient>
-              <linearGradient id="fillExpense" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#f43f5e" stopOpacity={0.8} />
-                <stop offset="95%" stopColor="#f43f5e" stopOpacity={0.1} />
-              </linearGradient>
-              <linearGradient id="fillNet" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8} />
-                <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.1} />
-              </linearGradient>
-            </defs>
-            <CartesianGrid vertical={false} />
+          <BarChart data={chartData}>
+            <CartesianGrid vertical={false} strokeDasharray="3 3" />
             <XAxis
               dataKey="date"
               tickLine={false}
               axisLine={false}
               tickMargin={8}
-              minTickGap={32}
+              minTickGap={isMobile ? 10 : 5}
               tickFormatter={(value) => {
                 const date = new Date(value);
                 return date.toLocaleDateString("en-US", {
@@ -173,9 +158,14 @@ export default function DailyExpenseChart() {
                 });
               }}
             />
+            <YAxis
+              tickLine={false}
+              axisLine={false}
+              width={isMobile ? 40 : 60}
+              tickFormatter={(value) => `₹${value}`}
+            />
             <ChartTooltip
-              cursor={false}
-              defaultIndex={isMobile ? -1 : 10}
+              cursor={{ fill: "rgba(0, 0, 0, 0.1)" }}
               content={
                 <ChartTooltipContent
                   labelFormatter={(value) => {
@@ -192,28 +182,13 @@ export default function DailyExpenseChart() {
             />
 
             {selectedView === "net" ? (
-              <Area
-                dataKey="net"
-                type="natural"
-                fill="url(#fillNet)"
-                stroke="#3b82f6"
-              />
+              <Bar dataKey="net" fill="#3b82f6" radius={[4, 4, 0, 0]} />
             ) : selectedView === "income" ? (
-              <Area
-                dataKey="income"
-                type="natural"
-                fill="url(#fillIncome)"
-                stroke="#22c55e"
-              />
+              <Bar dataKey="income" fill="#22c55e" radius={[4, 4, 0, 0]} />
             ) : (
-              <Area
-                dataKey="expense"
-                type="natural"
-                fill="url(#fillExpense)"
-                stroke="#f43f5e"
-              />
+              <Bar dataKey="expense" fill="#f43f5e" radius={[4, 4, 0, 0]} />
             )}
-          </AreaChart>
+          </BarChart>
         </ChartContainer>
       </CardContent>
     </Card>
