@@ -69,14 +69,14 @@ function TransactionTypeRadarChart() {
 
   return (
     <Card>
-      <CardHeader className="items-center pb-4">
+      <CardHeader className="items-center">
         <CardTitle>Transaction Type Analysis</CardTitle>
         <CardDescription>Distribution of transactions by type</CardDescription>
       </CardHeader>
       <CardContent className="pb-0">
         <ChartContainer
           config={chartConfig}
-          className="mx-auto aspect-square max-h-[380px]"
+          className="mx-auto aspect-square "
         >
           <RadarChart
             data={chartData}

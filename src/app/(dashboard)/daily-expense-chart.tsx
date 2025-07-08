@@ -30,15 +30,15 @@ import { api } from "@/trpc/react";
 const chartConfig = {
   income: {
     label: "Income",
-    color: "#22c55e", 
+    color: "var(--income-color)",
   },
   expense: {
     label: "Expense",
-    color: "#f43f5e", 
+    color: "var(--expense-color)",
   },
   net: {
     label: "Net",
-    color: "#3b82f6",
+    color: "var(--net-color)",
   },
 } satisfies ChartConfig;
 

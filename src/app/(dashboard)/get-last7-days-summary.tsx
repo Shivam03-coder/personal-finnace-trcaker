@@ -84,17 +84,16 @@ const LastSevenDaysNetTransaction = () => {
     });
   }, [transactions, today]);
 
-  if (isLoading)
-    return <Skeleton className="col-span-2 h-[400px] w-full rounded-lg" />;
+  if (isLoading) return <Skeleton className="w-full rounded-lg" />;
 
   return (
-    <Card>
+    <Card className="h-full">
       <CardHeader>
         <CardTitle>Net Transactions - Last 7 Days</CardTitle>
         <CardDescription>Daily income and expenses overview</CardDescription>
       </CardHeader>
       <CardContent>
-        <ResponsiveContainer width="100%" height={300}>
+        <ResponsiveContainer width="100%" height={400}>
           <BarChart data={chartData}>
             <CartesianGrid vertical={false} strokeDasharray="3 3" />
             <XAxis
