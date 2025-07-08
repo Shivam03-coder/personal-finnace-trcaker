@@ -84,7 +84,7 @@ const LastSevenDaysNetTransaction = () => {
     });
   }, [transactions, today]);
 
-  if (isLoading) return <Skeleton className="w-full rounded-lg" />;
+  if (isLoading) return <Skeleton className="w-full col-span-2 min-h-[400px] rounded-lg" />;
 
   return (
     <Card className="h-full">
