@@ -155,7 +155,7 @@ export const transactionRouter = createTRPCRouter({
   getDailySummary: protectedProcedure
     .input(z.object({ days: z.number().min(1).max(365).default(7) }))
     .query(async ({ ctx, input }) => {
-      const transactions = await getTransactions(ctx.db, input.days);
+      const transactions = await getTransactions(ctx.db, input.days, ctx.auth.userId);
 
       const dates = Array.from({ length: input.days })
         .map((_, i) => {

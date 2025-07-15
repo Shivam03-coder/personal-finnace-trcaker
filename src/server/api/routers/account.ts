@@ -90,7 +90,7 @@ export const accountRouter = createTRPCRouter({
     });
   }),
 
-  getSummary: protectedProcedure.query(async () => {
-    return await getTotalExpenseAndIncomeAllAccounts();
+  getSummary: protectedProcedure.query(async ({ ctx }) => {
+    return await getTotalExpenseAndIncomeAllAccounts(ctx.auth.userId);
   }),
 });

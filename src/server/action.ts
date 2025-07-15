@@ -2,7 +2,6 @@
 import type { PrismaClient, TransactionType } from "@prisma/client";
 import { db } from "./db";
 import { getDateRange } from "@/utils/get-dates";
-import { userId } from "./api/routers/budget";
 
 export async function ReceiptScanner(file: File) {
   try {
@@ -19,7 +18,7 @@ export async function getDefaultAccountId() {
     .then((value) => value?.id);
 }
 
-export const getTransactions = async (prisma: PrismaClient, days: number) => {
+export const getTransactions = async (prisma: PrismaClient, days: number , userId: string) => {
   const { startDate, endDate } = getDateRange(days);
 
   return await prisma.transaction.findMany({
@@ -43,7 +42,7 @@ export const getTransactions = async (prisma: PrismaClient, days: number) => {
   });
 };
 
-export const getTotalExpenseAndIncomeAllAccounts = async () => {
+export const getTotalExpenseAndIncomeAllAccounts = async (userId: string) => {
   const startOfMonth = new Date();
   startOfMonth.setDate(1);
   startOfMonth.setHours(0, 0, 0, 0);

@@ -6,9 +6,18 @@ import { db } from "@/server/db";
 import { auth } from "@clerk/nextjs/server";
 
 export const createTRPCContext = async (opts: { headers: Headers }) => {
-  const user = await auth();
+  const clerkUser = await auth();
+
+  const user = await db.user.findUnique({
+    where: {
+      clerkUserId: clerkUser.userId as string,
+    },
+  });
+
   return {
-    auth: user,
+    auth: {
+      userId: user?.id,
+    },
     db,
     ...opts,
   };

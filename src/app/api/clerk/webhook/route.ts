@@ -15,7 +15,7 @@ export const POST = async (req: Request) => {
   try {
     await db.user.create({
       data: {
-        id,
+        clerkUserId: id,
         email,
         profileUrl,
         name,
