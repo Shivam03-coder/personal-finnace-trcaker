@@ -136,3 +136,7 @@
 @utility page {
   @apply flex min-h-screen flex-col p-2;
 }
+
+@utility center {
+  @apply flex min-h-screen w-full items-center justify-center;
+}

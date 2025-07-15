@@ -18,7 +18,7 @@ import {
 import { Link } from "next-view-transitions";
 import { ArrowLeftRight } from "lucide-react";
 import { useCallback, useState } from "react";
-import AddTransactionSheet from "@/app/(dashboard)/transactions/add-transaction-sheet";
+import AddTransactionSheet from "@/app/dashboard/transactions/add-transaction-sheet";
 
 export function NavMain({
   items,

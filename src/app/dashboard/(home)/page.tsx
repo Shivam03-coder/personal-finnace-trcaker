@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import FinanceSummaryCards from "./finance-summary-cards";
-import TransactionDataTable from "./transaction-data-table";
+import TransactionDataTable from "../transaction-data-table";
 import DailyExpenseChart from "./daily-expense-chart";
 import BudgetCharts from "./budget-charts";
 
