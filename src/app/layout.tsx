@@ -19,16 +19,16 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html suppressHydrationWarning lang="en" className={appfonts}>
-      <body>
-        <TRPCReactProvider>
-          <ClerkProvider afterSignOutUrl="/sign-in">
+    <ClerkProvider afterSignOutUrl="/sign-in">
+      <html suppressHydrationWarning lang="en" className={appfonts}>
+        <body>
+          <TRPCReactProvider>
             <AppRootProvider>
               <main className="flex min-h-screen flex-col">{children}</main>
             </AppRootProvider>
-          </ClerkProvider>
-        </TRPCReactProvider>
-      </body>
-    </html>
+          </TRPCReactProvider>
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }
