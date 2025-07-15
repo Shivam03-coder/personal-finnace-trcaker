@@ -3,6 +3,7 @@ import { type Metadata } from "next";
 import { TRPCReactProvider } from "@/trpc/react";
 import AppRootProvider from "@/providers/app-providers";
 import { appfonts } from "@/fonts";
+import { ClerkProvider } from "@clerk/nextjs";
 
 export const metadata: Metadata = {
   title: {
@@ -21,9 +22,11 @@ export default function RootLayout({
     <html suppressHydrationWarning lang="en" className={appfonts}>
       <body>
         <TRPCReactProvider>
-          <AppRootProvider>
-            <main className="flex min-h-screen flex-col">{children}</main>
-          </AppRootProvider>
+          <ClerkProvider afterSignOutUrl="/sign-in">
+            <AppRootProvider>
+              <main className="flex min-h-screen flex-col">{children}</main>
+            </AppRootProvider>
+          </ClerkProvider>
         </TRPCReactProvider>
       </body>
     </html>
