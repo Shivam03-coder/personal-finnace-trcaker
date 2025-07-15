@@ -1,23 +1,18 @@
-import { transactionSchema } from "@/schema/transaction.schema";
-import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
+import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import getStartDateAndEndDate from "@/utils/get-dates";
 import { TransactionType } from "@prisma/client";
 import z from "zod";
 
-export const userId = "65c0d2d242fd32ba15fdee12";
 
 export const budgetRouter = createTRPCRouter({
-  upsertBudget: publicProcedure
+  upsertBudget: protectedProcedure
     .input(
       z.object({
         amount: z.number().min(1).max(1_000_000_000),
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      if (!userId) {
-        throw new Error("Unauthorized");
-      }
-
+      const userId = ctx.auth.userId;
       const { startDate, endDate } = getStartDateAndEndDate();
 
       await ctx.db.budget.upsert({
@@ -38,7 +33,7 @@ export const budgetRouter = createTRPCRouter({
       return { success: true };
     }),
 
-  getCurrentBudget: publicProcedure
+  getCurrentBudget: protectedProcedure
     .input(
       z.object({
         accountId: z.string(),
@@ -52,6 +47,8 @@ export const budgetRouter = createTRPCRouter({
         },
       });
 
+      const userId = ctx.auth.userId;
+
       if (!isAccount) throw new Error("Account not found");
 
       const { endDate, startDate } = getStartDateAndEndDate();
@@ -59,10 +56,10 @@ export const budgetRouter = createTRPCRouter({
       const expense = await ctx.db.transaction.aggregate({
         where: {
           accountId: input.accountId,
-          // date: {
-          //   lte: endDate,
-          //   gte: startDate,
-          // },
+          date: {
+            lte: endDate,
+            gte: startDate,
+          },
           userId,
           type: {
             in: [
@@ -76,7 +73,6 @@ export const budgetRouter = createTRPCRouter({
           amount: true,
         },
       });
-      console.log("🚀 ~ .query ~ expense:", expense);
 
       const budget = await ctx.db.budget.findFirst({
         where: {

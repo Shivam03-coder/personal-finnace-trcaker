@@ -1,5 +1,5 @@
 import { transactionSchema } from "@/schema/transaction.schema";
-import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
+import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import z from "zod";
 import { subDays, startOfDay } from "date-fns";
 import { getDefaultAccountId, getTransactions } from "@/server/action";
@@ -10,7 +10,7 @@ import {
 } from "@/utils/get-amount";
 
 export const transactionRouter = createTRPCRouter({
-  createTransactions: publicProcedure
+  createTransactions: protectedProcedure
     .input(transactionSchema)
     .mutation(async ({ ctx, input }) => {
       const accountId = await getDefaultAccountId();
@@ -29,7 +29,7 @@ export const transactionRouter = createTRPCRouter({
         await tx.transaction.create({
           data: {
             ...input,
-            userId: "65c0d2d242fd32ba15fdee12",
+            userId: ctx.auth.userId,
             accountId: input.accountId as string,
           },
         });
@@ -48,7 +48,7 @@ export const transactionRouter = createTRPCRouter({
       });
     }),
 
-  getTransactions: publicProcedure.query(async ({ ctx, input }) => {
+  getTransactions: protectedProcedure.query(async ({ ctx, input }) => {
     return ctx.db.transaction.findMany({
       select: {
         id: true,
@@ -68,7 +68,7 @@ export const transactionRouter = createTRPCRouter({
     });
   }),
 
-  getTransactionsByAccounts: publicProcedure
+  getTransactionsByAccounts: protectedProcedure
     .input(
       z.object({
         accountId: z.string(),
@@ -92,7 +92,7 @@ export const transactionRouter = createTRPCRouter({
       });
     }),
 
-  deleteTransaction: publicProcedure
+  deleteTransaction: protectedProcedure
     .input(
       z.object({
         transactionId: z.string(),
@@ -106,7 +106,7 @@ export const transactionRouter = createTRPCRouter({
       });
     }),
 
-  getLast7DaysSummary: publicProcedure.query(async ({ ctx }) => {
+  getLast7DaysSummary: protectedProcedure.query(async ({ ctx }) => {
     const today = new Date();
     const sevenDaysAgo = subDays(startOfDay(today), 6);
 
@@ -127,7 +127,7 @@ export const transactionRouter = createTRPCRouter({
     return transactions;
   }),
 
-  getDefaultAccountsTransactions: publicProcedure.query(async ({ ctx }) => {
+  getDefaultAccountsTransactions: protectedProcedure.query(async ({ ctx }) => {
     const accountId = await getDefaultAccountId();
 
     return await ctx.db.transaction.findMany({
@@ -152,7 +152,7 @@ export const transactionRouter = createTRPCRouter({
     });
   }),
 
-  getDailySummary: publicProcedure
+  getDailySummary: protectedProcedure
     .input(z.object({ days: z.number().min(1).max(365).default(7) }))
     .query(async ({ ctx, input }) => {
       const transactions = await getTransactions(ctx.db, input.days);
@@ -200,7 +200,7 @@ export const transactionRouter = createTRPCRouter({
       }));
     }),
 
-  editTransaction: publicProcedure
+  editTransaction: protectedProcedure
     .input(
       transactionSchema.extend({
         id: z.string(),

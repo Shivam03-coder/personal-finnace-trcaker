@@ -1,18 +1,17 @@
 import { accountSchema } from "@/schema/account.schema";
-import {
-  getDefaultAccountId,
-  getTotalExpenseAndIncomeAllAccounts,
-} from "@/server/action";
-import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
+import { getTotalExpenseAndIncomeAllAccounts } from "@/server/action";
+import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
 import z from "zod";
 
 export const accountRouter = createTRPCRouter({
-  createAccount: publicProcedure
+  createAccount: protectedProcedure
     .input(accountSchema)
     .mutation(async ({ ctx, input }) => {
       if (input.isDefaultAccount) {
         await ctx.db.account.updateMany({ data: { isDefaultAccount: false } });
       }
+
+      const userId = ctx.auth.userId;
 
       return ctx.db.account.create({
         data: {
@@ -20,12 +19,12 @@ export const accountRouter = createTRPCRouter({
           accountType: input.accountType,
           accountBalance: input.accountBalance,
           isDefaultAccount: input.isDefaultAccount,
-          userId: "65c0d2d242fd32ba15fdee12",
+          userId,
         },
       });
     }),
 
-  getAccountDetails: publicProcedure.query(async ({ ctx }) => {
+  getAccountDetails: protectedProcedure.query(async ({ ctx }) => {
     const acc = await ctx.db.account.findMany({
       select: {
         id: true,
@@ -45,7 +44,7 @@ export const accountRouter = createTRPCRouter({
     };
   }),
 
-  deleteAccount: publicProcedure
+  deleteAccount: protectedProcedure
     .input(
       z.object({
         accountId: z.string(),
@@ -59,7 +58,7 @@ export const accountRouter = createTRPCRouter({
       });
     }),
 
-  updateDefaultAccount: publicProcedure
+  updateDefaultAccount: protectedProcedure
     .input(
       z.object({
         accountId: z.string(),
@@ -79,7 +78,7 @@ export const accountRouter = createTRPCRouter({
       });
     }),
 
-  getDefaultAccountsTransactions: publicProcedure.query(async ({ ctx }) => {
+  getDefaultAccountsTransactions: protectedProcedure.query(async ({ ctx }) => {
     return await ctx.db.transaction.findMany({
       where: {
         status: "COMPLETED",
@@ -91,7 +90,7 @@ export const accountRouter = createTRPCRouter({
     });
   }),
 
-  getSummary: publicProcedure.query(async () => {
+  getSummary: protectedProcedure.query(async () => {
     return await getTotalExpenseAndIncomeAllAccounts();
   }),
 });
