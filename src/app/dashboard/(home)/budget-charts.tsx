@@ -3,6 +3,7 @@ import BudgetPieChart from "./monthly-budget";
 import TransactionTypeRadarChart from "./trnasaction-type-chart";
 import LastSevenDaysNetTransaction from "./get-last7-days-summary";
 
+
 const BudgetCharts = () => {
   return (
     <div className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 lg:grid-cols-3 xl:gap-6 2xl:grid-cols-4">

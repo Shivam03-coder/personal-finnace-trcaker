@@ -9,9 +9,9 @@ import {
   Receipt,
   Wallet,
 } from "lucide-react";
-import FinanceSummaryCard from "../../components/global/summary-card";
 import { api } from "@/trpc/react";
 import { Skeleton } from "@/components/ui/skeleton";
+import FinanceSummaryCard from "@/components/global/summary-card";
 
 export default function FinanceSummaryCards() {
   const { data, isLoading } = api.account.getSummary.useQuery();

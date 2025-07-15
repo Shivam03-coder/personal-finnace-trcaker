@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import AddBudgetDialog from "./(home)/add-budget-dialog";
+import AddBudgetDialog from "./add-budget-dialog";
 
 const COLORS = ["#0088FE", "#FF8042"];
 
